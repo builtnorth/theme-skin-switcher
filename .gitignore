@@ -1,0 +1,20 @@
+# PHP
+vendor/
+composer.lock
+
+# JavaScript
+node_modules/
+package-lock.json
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Logs / cache
+*.log
+.cache/
+.phpunit.result.cache
+coverage/

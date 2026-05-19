@@ -1,0 +1,78 @@
+.compass-waas-skin-switcher__field {
+	margin-bottom: 8px;
+	width: 100%;
+}
+
+.compass-waas-skin-switcher__select {
+	width: 100%;
+}
+
+.compass-waas-skin-switcher__option-preview {
+	display: block;
+	width: 32px;
+	height: 32px;
+	flex-shrink: 0;
+	object-fit: cover;
+	border-radius: 2px;
+	border: 1px solid rgb(0 0 0 / 12%);
+}
+
+.compass-waas-skin-switcher__option-preview--fallback {
+	background: linear-gradient(135deg, #f0f0f0 50%, #ccc 50%);
+}
+
+// Trigger + list: preview left, label right; full-width list matches control.
+.compass-waas-skin-switcher__select {
+	.components-custom-select-control__button {
+		width: 100%;
+		justify-content: flex-start;
+		text-align: left;
+	}
+
+	.components-custom-select-control__hint {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		width: 100%;
+		text-align: left;
+	}
+
+	.components-custom-select-control__item {
+		width: 100%;
+	}
+
+	.components-custom-select-control__item-hint {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		width: 100%;
+		text-align: left;
+	}
+
+	.components-custom-select-control__item-icon {
+		order: -1;
+		margin-right: 0;
+		margin-left: 0;
+		flex-shrink: 0;
+	}
+
+	.components-custom-select-control__item-icon .compass-waas-skin-switcher__option-preview {
+		display: block;
+	}
+}
+
+.compass-waas-skin-switcher__error {
+	margin: 8px 0 0;
+	color: #b32d2e;
+	font-size: 12px;
+}
+
+.compass-waas-styles-accessibility-notice {
+	margin: 16px 0 0;
+	width: 100%;
+
+	.components-notice__content {
+		font-size: 12px;
+		line-height: 1.5;
+	}
+}
