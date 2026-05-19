@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ThemeSkinSwitcher;
 
-use Polaris\Traits\SingletonTrait;
+use ThemeSkinSwitcher\Traits\SingletonTrait;
 
 defined('ABSPATH') || defined('WP_CLI') || exit;
 

@@ -1,5 +1,5 @@
 /**
- * Mounts Compass controls on the Global Styles home screen (same card as core presets).
+ * Mounts skin switcher controls on the Global Styles home screen (same card as core presets).
  * Design skin at the top; ADA color guidance at the bottom.
  */
 import { useEffect, useState, useCallback } from '@wordpress/element';
@@ -8,8 +8,8 @@ import SkinSwitcherRootCard from './SkinSwitcherRootCard';
 import StylesAccessibilityNotice from './StylesAccessibilityNotice';
 import { reapplyActiveSkin } from './skin-persistence';
 
-const SKIN_MOUNT_ID = 'compass-waas-skin-switcher-root-mount';
-const NOTICE_MOUNT_ID = 'compass-waas-styles-accessibility-mount';
+const SKIN_MOUNT_ID = 'theme-skin-switcher-root-mount';
+const NOTICE_MOUNT_ID = 'theme-skin-switcher-accessibility-mount';
 
 function findStylesRootStack() {
 	const root = document.querySelector('.edit-site-global-styles-screen-root');

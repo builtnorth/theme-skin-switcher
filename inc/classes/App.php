@@ -7,7 +7,7 @@ namespace ThemeSkinSwitcher;
 use ThemeSkinSwitcher\Provisioning\StyleProvisioner;
 use ThemeSkinSwitcher\Style\StyleEditorIntegration;
 use ThemeSkinSwitcher\Style\StyleVariationManager;
-use Polaris\Traits\SingletonTrait;
+use ThemeSkinSwitcher\Traits\SingletonTrait;
 
 defined('ABSPATH') || defined('WP_CLI') || exit;
 

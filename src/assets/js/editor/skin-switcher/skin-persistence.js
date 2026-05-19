@@ -9,7 +9,7 @@ import {
 	reapplyActiveSkinToDocuments,
 } from './apply-skin-client';
 
-const BOUND_IFRAME_FLAG = 'compassWaasSkinBound';
+const BOUND_IFRAME_FLAG = 'themeSkinSwitcherBound';
 
 let persistenceStarted = false;
 let debounceTimer = null;

@@ -1,13 +1,13 @@
-.compass-waas-skin-switcher__field {
+.theme-skin-switcher__field {
 	margin-bottom: 8px;
 	width: 100%;
 }
 
-.compass-waas-skin-switcher__select {
+.theme-skin-switcher__select {
 	width: 100%;
 }
 
-.compass-waas-skin-switcher__option-preview {
+.theme-skin-switcher__option-preview {
 	display: block;
 	width: 32px;
 	height: 32px;
@@ -17,12 +17,12 @@
 	border: 1px solid rgb(0 0 0 / 12%);
 }
 
-.compass-waas-skin-switcher__option-preview--fallback {
+.theme-skin-switcher__option-preview--fallback {
 	background: linear-gradient(135deg, #f0f0f0 50%, #ccc 50%);
 }
 
 // Trigger + list: preview left, label right; full-width list matches control.
-.compass-waas-skin-switcher__select {
+.theme-skin-switcher__select {
 	.components-custom-select-control__button {
 		width: 100%;
 		justify-content: flex-start;
@@ -56,18 +56,18 @@
 		flex-shrink: 0;
 	}
 
-	.components-custom-select-control__item-icon .compass-waas-skin-switcher__option-preview {
+	.components-custom-select-control__item-icon .theme-skin-switcher__option-preview {
 		display: block;
 	}
 }
 
-.compass-waas-skin-switcher__error {
+.theme-skin-switcher__error {
 	margin: 8px 0 0;
 	color: #b32d2e;
 	font-size: 12px;
 }
 
-.compass-waas-styles-accessibility-notice {
+.theme-skin-switcher-accessibility-notice {
 	margin: 16px 0 0;
 	width: 100%;
 

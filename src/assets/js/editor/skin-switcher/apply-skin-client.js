@@ -1,20 +1,20 @@
 /**
- * Apply a WaaS skin switch in the editor without reloading the page.
+ * Apply a Theme skin switch in the editor without reloading the page.
  */
 import { getSkinSwitcherBootData } from './boot-data';
 
-const SKIN_STYLE_LINK_ID = 'compass-waas-active-skin-style';
-const SKIN_FONT_LINK_ID  = 'compass-waas-active-skin-font';
-const SKIN_CUSTOM_VARS_ID = 'compass-waas-skin-custom-theme-properties';
-const SKIN_VARIATION_JSON_CSS_ID = 'compass-waas-skin-variation-theme-json';
-const SKIN_BODY_PREFIX   = 'compass-waas-style-';
+const SKIN_STYLE_LINK_ID = 'theme-skin-switcher-active-skin-style';
+const SKIN_FONT_LINK_ID  = 'theme-skin-switcher-active-skin-font';
+const SKIN_CUSTOM_VARS_ID = 'theme-skin-switcher-custom-theme-properties';
+const SKIN_VARIATION_JSON_CSS_ID = 'theme-skin-switcher-variation-theme-json';
+const SKIN_BODY_PREFIX   = 'theme-skin-';
 // Matches compiled skin stylesheets under build/design-skins/{slug}/style.css.
 const SKIN_CSS_PATTERN   = /\/build\/design-skins\/[a-z0-9-]+\/style\.css/i;
 // Any Google Fonts CSS API v2 bundle (skin switcher replaces the active skin link).
 const SKIN_FONT_PATTERN  = /fonts\.googleapis\.com\/css2\?/i;
-const HREF_ATTR          = 'data-compass-waas-skin-href';
+const HREF_ATTR          = 'data-theme-skin-href';
 
-export const SKIN_CHANGED_EVENT = 'compassWaasSkinChanged';
+export const SKIN_CHANGED_EVENT = 'themeSkinSwitcherChanged';
 
 let lastAppliedPayload = null;
 let lastAppliedSlug = '';
@@ -183,7 +183,7 @@ function applyCustomThemeProperties(doc, bodyClass, properties) {
 		return;
 	}
 
-	if (!/^compass-waas-style-[a-z0-9-]+$/.test(bodyClass)) {
+	if (!/^theme-skin-[a-z0-9-]+$/.test(bodyClass)) {
 		return;
 	}
 
@@ -245,7 +245,7 @@ function applyVariationThemeJsonCss(doc, bodyClass, css) {
 		return;
 	}
 
-	if (!/^compass-waas-style-[a-z0-9-]+$/.test(bodyClass)) {
+	if (!/^theme-skin-[a-z0-9-]+$/.test(bodyClass)) {
 		return;
 	}
 

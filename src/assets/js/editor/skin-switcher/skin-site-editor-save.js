@@ -7,7 +7,7 @@ import { getSwitchPayload } from './client-switch-payload';
 import { reapplyActiveSkinToDocuments } from './apply-skin-client';
 
 function getSettingKey() {
-	return getSkinSwitcherBootData()?.settingKey || 'compass_waas_active_style';
+	return getSkinSwitcherBootData()?.settingKey || 'theme_skin_switcher_active_style';
 }
 
 /**

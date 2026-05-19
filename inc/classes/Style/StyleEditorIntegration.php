@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Site Editor data for the WaaS skin switcher (script loads via editor bundle).
+ * Site Editor data for the theme skin switcher (script loads via editor bundle).
  *
  * @package ThemeSkinSwitcher\Style
  * @since 1.0.0

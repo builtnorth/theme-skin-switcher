@@ -22,7 +22,7 @@ export default function useApplySkin({ onApplied } = {}) {
 
 		if (!payload?.styleCssUrl) {
 			setError(
-				__('Could not switch design skin. Please reload the editor.', 'compass-waas')
+				__('Could not switch design skin. Please reload the editor.', 'theme-skin-switcher')
 			);
 			return;
 		}

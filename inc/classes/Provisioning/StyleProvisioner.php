@@ -6,7 +6,7 @@
  * ------------------------------------------------------------------
  *
  * Registers the WP-CLI command and REST API endpoint used by the
- * WaaS onboarding flow to apply a style variation to a site.
+ * onboarding flow to apply a style variation to a site.
  *
  * WP-CLI:
  *   lando wp theme-skin-switcher set-style <slug>

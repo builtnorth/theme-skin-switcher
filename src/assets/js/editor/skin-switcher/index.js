@@ -1,5 +1,5 @@
 /**
- * WaaS design skin switcher (Site Editor → Styles).
+ * Theme design skin switcher (Site Editor → Styles).
  */
 import apiFetch from '@wordpress/api-fetch';
 import { registerPlugin } from '@wordpress/plugins';
@@ -18,7 +18,7 @@ if (boot.nonce) {
 initSkinPersistence();
 initSkinSiteEditorSave();
 
-registerPlugin('compass-waas-skin-switcher', {
+registerPlugin('theme-skin-switcher', {
 	render: SkinSwitcherRootMount,
 	icon: null,
 });

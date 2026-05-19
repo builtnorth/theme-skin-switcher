@@ -1,6 +1,6 @@
 {
 	"name": "builtnorth/theme-skin-switcher",
-	"description": "Design skin engine and Site Editor switcher for Compass WaaS themes.",
+	"description": "Design skin engine and Site Editor switcher for WordPress block themes.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"autoload": {
@@ -8,15 +8,8 @@
 			"ThemeSkinSwitcher\\": "inc/classes/"
 		}
 	},
-	"authors": [
-		{
-			"name": "Built North",
-			"homepage": "https://builtnorth.co"
-		}
-	],
 	"require": {
-		"php": ">=8.1",
-		"builtnorth/polaris": "^2.0"
+		"php": ">=8.1"
 	},
 	"config": {
 		"optimize-autoloader": false,
@@ -26,7 +19,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-main": "1.0.x-dev"
+			"dev-main": "2.0.x-dev"
 		}
 	}
 }

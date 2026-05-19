@@ -7,7 +7,7 @@ export default function SkinPreviewImage({ style }) {
 	if (!src) {
 		return (
 			<span
-				className="compass-waas-skin-switcher__option-preview compass-waas-skin-switcher__option-preview--fallback"
+				className="theme-skin-switcher__option-preview theme-skin-switcher__option-preview--fallback"
 				aria-hidden="true"
 			/>
 		);
@@ -15,7 +15,7 @@ export default function SkinPreviewImage({ style }) {
 
 	return (
 		<img
-			className="compass-waas-skin-switcher__option-preview"
+			className="theme-skin-switcher__option-preview"
 			src={src}
 			alt=""
 			width={32}

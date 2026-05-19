@@ -5,28 +5,23 @@
  * Style Variation Manager
  * ------------------------------------------------------------------
  *
- * Manages per-style asset loading for Compass WaaS.
+ * Manages per-style asset loading for block themes using design skins.
  *
-	 * Each skin is a subdirectory design-skins/{slug}/ with a readable variation.json
+ * Each skin is a subdirectory design-skins/{slug}/ with a readable variation.json
  * (same shape as a theme.json style variation). Slugs are discovered from the
  * filesystem — no manual allow list.
  *
- * The active style is read from a theme mod ('compass_waas_active_style')
- * which is set during WaaS provisioning. Falls back to reading the current
+ * The active style is read from a theme mod ({@see self::THEME_MOD_KEY}),
+ * with migration from legacy keys where applicable. Falls back to the current
  * WordPress global styles variation slug from the wp_global_styles CPT.
  *
  * The active skin's variation.json is merged into theme layer data via
  * {@see self::merge_active_skin_theme_json()} so presets and custom tokens
- * (e.g. border-radius) apply on front and in the editor. The Site Editor also
- * loads user global styles via REST ({@see self::merge_active_skin_into_rest_global_styles()}),
- * which bypasses {@see 'wp_theme_json_data_user'} unless patched.
+ * apply on front and in the editor.
  *
- * Editor client preview (no reload) uses three layers per skin — all may grow over time:
- * 1. Merged settings.custom CSS variables ({@see self::get_client_custom_theme_properties()}).
- * 2. WP-compiled CSS from variation.json only ({@see self::get_client_variation_theme_json_css()}).
-	 * 3. build/design-skins/{slug}/style.css (and fonts) via switch payload URLs.
- *
- * Filters: {@see 'compass_waas_skin_client_switch_payload'},
+ * Filters: {@see 'theme_skin_switcher_client_switch_payload'},
+ * {@see 'theme_skin_switcher_client_custom_theme_properties'}.
+ * Deprecated aliases: {@see 'compass_waas_skin_client_switch_payload'},
  * {@see 'compass_waas_skin_client_custom_theme_properties'}.
  *
  * @package ThemeSkinSwitcher\Style
@@ -38,8 +33,7 @@ declare(strict_types=1);
 namespace ThemeSkinSwitcher\Style;
 
 use ThemeSkinSwitcher\SkinPackRegistry;
-use Polaris\Assets\CanvasStyles;
-use Polaris\Traits\SingletonTrait;
+use ThemeSkinSwitcher\Traits\SingletonTrait;
 
 // Don't load directly.
 defined('ABSPATH') || defined('WP_CLI') || exit;
@@ -49,12 +43,22 @@ class StyleVariationManager
 	use SingletonTrait;
 
 	/**
-	 * Theme mod key used to store the provisioned active style.
+	 * Theme mod key for the active skin slug.
 	 */
-	const THEME_MOD_KEY = 'compass_waas_active_style';
+	public const THEME_MOD_KEY = 'theme_skin_switcher_active_style';
 
 	/**
-	 * Root directory for WaaS design skins (variation.json, style.scss, assets).
+	 * @deprecated 2.0.0 Migrated automatically to {@see self::THEME_MOD_KEY}.
+	 */
+	public const LEGACY_THEME_MOD_KEY = 'compass_waas_active_style';
+
+	/**
+	 * Body class prefix (output: `{prefix}-{slug}` e.g. theme-skin-fresh).
+	 */
+	public const BODY_CLASS_PREFIX = 'theme-skin';
+
+	/**
+	 * Root directory for design skins (variation.json, style.scss, assets).
 	 */
 	public const SKINS_DIRECTORY = 'design-skins';
 
@@ -150,16 +154,80 @@ class StyleVariationManager
 		add_filter('editor_stylesheets', [$this, 'append_active_skin_editor_stylesheet']);
 		add_action('enqueue_block_assets', [$this, 'enqueue_skin_for_editor_canvas'], 20);
 
+		add_filter('theme_skin_switcher_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
 		add_filter('polaris_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
 
 		// Site Editor: user entity comes from REST (raw CPT), not WP_Theme_JSON_Resolver::get_user_data().
 		add_filter('rest_prepare_wp_global_styles', [$this, 'merge_active_skin_into_rest_global_styles'], 10, 3);
 
+		add_filter('theme_skin_switcher_section_pattern_base_directories', [$this, 'filter_section_pattern_base_directories'], 10, 2);
 		add_filter('polaris_section_pattern_base_directories', [$this, 'filter_section_pattern_base_directories'], 10, 2);
 	}
 
 	/**
-	 * Allow section pattern SVGs to load from the registered skin pack plugin.
+	 * CSS body class for a skin slug.
+	 */
+	public static function get_body_class_for_slug(string $slug): string
+	{
+		$slug = sanitize_key($slug);
+
+		if ($slug === '') {
+			return '';
+		}
+
+		return self::BODY_CLASS_PREFIX . '-' . $slug;
+	}
+
+	/**
+	 * Read active skin from theme mod, migrating legacy keys when needed.
+	 */
+	private static function read_active_slug_from_theme_mod(): string
+	{
+		$slug = (string) get_theme_mod(self::THEME_MOD_KEY, '');
+
+		if ($slug !== '') {
+			return $slug;
+		}
+
+		$legacy = (string) get_theme_mod(self::LEGACY_THEME_MOD_KEY, '');
+
+		if ($legacy === '') {
+			return '';
+		}
+
+		set_theme_mod(self::THEME_MOD_KEY, $legacy);
+		remove_theme_mod(self::LEGACY_THEME_MOD_KEY);
+
+		return $legacy;
+	}
+
+	/**
+	 * Apply a filter with a deprecated hook alias when listeners exist.
+	 *
+	 * @param mixed ...$args Arguments passed to apply_filters after the value.
+	 * @return mixed
+	 */
+	private static function apply_filter_with_legacy_alias(string $hook, string $legacy_hook, mixed $value, ...$args): mixed
+	{
+		$value = apply_filters($hook, $value, ...$args);
+
+		if ($legacy_hook !== $hook && has_filter($legacy_hook)) {
+			$value = apply_filters($legacy_hook, $value, ...$args);
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Whether enqueue_block_assets should load canvas (iframe) styles in the block editor.
+	 */
+	private static function should_enqueue_in_block_assets(): bool
+	{
+		return is_admin() && ! wp_should_load_block_editor_scripts_and_styles();
+	}
+
+	/**
+	 * Allow section pattern SVGs to load from the registered skin pack directory.
 	 *
 	 * @param string[] $base_directories Theme directories (stylesheet, template).
 	 * @param string   $pattern_dir      Relative pattern directory from editor experience.
@@ -184,7 +252,7 @@ class StyleVariationManager
 	 * Skins live under design-skins/{slug}/ — outside WP's default /styles discovery —
 	 * so without this hook, settings such as custom.border-radius never affect CSS variables.
 	 *
-	 * Runs at priority 20 so later filters (e.g. Polaris caps) still apply.
+	 * Runs at priority 20 so later filters still apply.
 	 *
 	 * @param \WP_Theme_JSON_Data $theme_json Theme JSON object.
 	 * @return \WP_Theme_JSON_Data
@@ -470,7 +538,8 @@ class StyleVariationManager
 				? self::flatten_theme_json_custom_to_css_vars($custom)
 				: [];
 
-			return apply_filters(
+			return self::apply_filter_with_legacy_alias(
+				'theme_skin_switcher_client_custom_theme_properties',
 				'compass_waas_skin_client_custom_theme_properties',
 				$properties,
 				$slug,
@@ -481,7 +550,8 @@ class StyleVariationManager
 		$custom = $merged->get_data()['settings']['custom'] ?? null;
 
 		if (! is_array($custom)) {
-			return apply_filters(
+			return self::apply_filter_with_legacy_alias(
+				'theme_skin_switcher_client_custom_theme_properties',
 				'compass_waas_skin_client_custom_theme_properties',
 				[],
 				$slug,
@@ -491,7 +561,8 @@ class StyleVariationManager
 
 		$properties = self::flatten_theme_json_custom_to_css_vars($custom);
 
-		return apply_filters(
+		return self::apply_filter_with_legacy_alias(
+			'theme_skin_switcher_client_custom_theme_properties',
 			'compass_waas_skin_client_custom_theme_properties',
 			$properties,
 			$slug,
@@ -637,7 +708,7 @@ class StyleVariationManager
 	}
 
 	/**
-	 * Subdirectories of design-skins/ whose variation.json defines a full WaaS skin.
+	 * Subdirectories of design-skins/ whose variation.json defines a full design skin.
 	 *
 	 * @return string[] Sorted slugs.
 	 */
@@ -840,8 +911,8 @@ class StyleVariationManager
 			return $this->active_slug;
 		}
 
-		// 1. Check provisioned theme mod.
-		$slug = (string) get_theme_mod(self::THEME_MOD_KEY, '');
+		// 1. Check theme mod (includes legacy key migration).
+		$slug = self::read_active_slug_from_theme_mod();
 
 		// 2. Fall back to reading the global styles CPT variation.
 		if (empty($slug)) {
@@ -958,7 +1029,7 @@ class StyleVariationManager
 	 */
 	public function enqueue_skin_for_editor_canvas(): void
 	{
-		if (! CanvasStyles::should_enqueue_in_block_assets()) {
+		if (! self::should_enqueue_in_block_assets()) {
 			return;
 		}
 
@@ -979,7 +1050,7 @@ class StyleVariationManager
 		$font_url = "https://fonts.googleapis.com/css2?family={$font_query}&display=swap";
 
 		wp_enqueue_style(
-			"compass-waas-font-{$slug}",
+			"theme-skin-switcher-font-{$slug}",
 			$font_url,
 			[],
 			null // No version — Google Fonts manages cache-busting.
@@ -1021,7 +1092,7 @@ class StyleVariationManager
 	}
 
 	/**
-	 * Add a CSS body class for the active style (e.g. .compass-waas-style-concrete).
+	 * Add a CSS body class for the active style (e.g. .theme-skin-fresh).
 	 * Allows style-specific CSS selectors to be scoped without affecting other styles.
 	 *
 	 * @param array $classes Existing body classes.
@@ -1032,7 +1103,7 @@ class StyleVariationManager
 		$slug = $this->get_active_slug();
 
 		if (!empty($slug)) {
-			$classes[] = "compass-waas-style-{$slug}";
+			$classes[] = self::get_body_class_for_slug($slug);
 		}
 
 		return $classes;
@@ -1052,7 +1123,7 @@ class StyleVariationManager
 			return $classes;
 		}
 
-		return $classes . ' compass-waas-style-' . $slug;
+		return $classes . ' ' . self::get_body_class_for_slug($slug);
 	}
 
 	/**
@@ -1069,23 +1140,18 @@ class StyleVariationManager
 		$slug = $this->get_active_slug();
 
 		if (!empty($slug)) {
-			$settings['compassWaasActiveSkinSlug']  = $slug;
-			$settings['compassWaasActiveSkinClass'] = "compass-waas-style-{$slug}";
+			$settings['themeSkinSwitcherActiveSlug']  = $slug;
+			$settings['themeSkinSwitcherActiveClass'] = self::get_body_class_for_slug($slug);
 		}
 
 		return $settings;
 	}
 
 	/**
-	 * Inject style-specific overrides into the Polaris editor experience data.
+	 * Inject style-specific overrides into editor experience data.
 	 *
-	 * Hooked into 'polaris_editor_experience_data' — runs before the config
-	 * is localized to window.polaris_localize.blocks.editor_experience.
-	 *
-	 * - Section background patterns (dots, stripes, topography, etc.): overrides
-	 *   `patterns.pattern_directory` when the style ships `background-patterns/*.svg`.
-	 * - Section dividers: overrides `section_divider.divider_directory` when the style
-	 *   ships `dividers/*.svg` (editor/config; frontend may also use theme CSS clip-paths).
+	 * Hooked into {@see 'theme_skin_switcher_editor_experience_data'} and, when
+	 * present, {@see 'polaris_editor_experience_data'} for backward compatibility.
 	 *
 	 * @param array $editor_experience Assembled editor experience config.
 	 * @return array Modified editor experience config.
@@ -1099,7 +1165,7 @@ class StyleVariationManager
 	 * Apply per-skin editor experience overrides for a given slug.
 	 *
 	 * @param array  $editor_experience Base editor experience config.
-	 * @param string $slug              Active WaaS skin slug.
+	 * @param string $slug              Active skin slug.
 	 * @return array Modified editor experience config.
 	 */
 	public static function apply_editor_experience_for_slug(array $editor_experience, string $slug): array
@@ -1148,14 +1214,14 @@ class StyleVariationManager
 			$font_css_url = 'https://fonts.googleapis.com/css2?family=' . $font_query . '&display=swap';
 		}
 
-		// Lightweight patch only — avoid rebuilding full Polaris editor experience (slow).
+		// Lightweight patch only — avoid rebuilding full editor experience config.
 		$editor_experience = self::apply_editor_experience_for_slug([], $slug);
 
 		$payload = [
 			'slug'                    => $slug,
 			'previousSlug'            => $previous_slug,
-			'bodyClass'               => "compass-waas-style-{$slug}",
-			'previousBodyClass'       => $previous_slug ? "compass-waas-style-{$previous_slug}" : '',
+			'bodyClass'               => self::get_body_class_for_slug($slug),
+			'previousBodyClass'       => $previous_slug ? self::get_body_class_for_slug($previous_slug) : '',
 			'styleCssUrl'             => $style_css_url,
 			'fontCssUrl'              => $font_css_url,
 			'editorExperience'        => $editor_experience,
@@ -1163,7 +1229,13 @@ class StyleVariationManager
 			'variationThemeJsonCss'   => self::get_client_variation_theme_json_css($slug),
 		];
 
-		return apply_filters('compass_waas_skin_client_switch_payload', $payload, $slug, $previous_slug);
+		return self::apply_filter_with_legacy_alias(
+			'theme_skin_switcher_client_switch_payload',
+			'compass_waas_skin_client_switch_payload',
+			$payload,
+			$slug,
+			$previous_slug
+		);
 	}
 
 	/**
@@ -1303,6 +1375,7 @@ class StyleVariationManager
 		}
 
 		set_theme_mod(self::THEME_MOD_KEY, $slug);
+		remove_theme_mod(self::LEGACY_THEME_MOD_KEY);
 
 		// Clear the cache so the new value is used immediately.
 		$instance               = self::get_instance();

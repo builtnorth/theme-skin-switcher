@@ -24,7 +24,7 @@ export default function SkinSwitcherRootCard() {
 				key: style.slug,
 				name: style.title,
 				icon: <SkinPreviewImage style={style} />,
-				className: `compass-waas-skin-switcher__option compass-waas-skin-switcher__option--${style.slug}`,
+				className: `theme-skin-switcher__option theme-skin-switcher__option--${style.slug}`,
 			})),
 		[styles]
 	);
@@ -49,14 +49,14 @@ export default function SkinSwitcherRootCard() {
 	};
 
 	return (
-		<div className="compass-waas-skin-switcher__field">
+		<div className="theme-skin-switcher__field">
 			<CustomSelectControl
 				__next40pxDefaultSize
-				className="compass-waas-skin-switcher__select"
-				label={__('Design skin', 'compass-waas')}
+				className="theme-skin-switcher__select"
+				label={__('Design skin', 'theme-skin-switcher')}
 				help={__(
 					'Section patterns, dividers, and skin CSS. Your Global Styles colors and fonts stay as you set them.',
-					'compass-waas'
+					'theme-skin-switcher'
 				)}
 				options={selectOptions}
 				value={selectedOption}
@@ -68,7 +68,7 @@ export default function SkinSwitcherRootCard() {
 			{error && (
 				<Text
 					as="p"
-					className="compass-waas-skin-switcher__error"
+					className="theme-skin-switcher__error"
 					role="alert"
 				>
 					{error}

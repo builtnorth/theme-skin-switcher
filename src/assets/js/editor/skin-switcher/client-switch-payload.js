@@ -14,7 +14,7 @@ export function getSwitchPayload(slug, previousSlug, boot) {
 		return null;
 	}
 
-	const bodyClass = template.bodyClass || `compass-waas-style-${slug}`;
+	const bodyClass = template.bodyClass || `theme-skin-${slug}`;
 
 	return {
 		...template,
@@ -22,7 +22,7 @@ export function getSwitchPayload(slug, previousSlug, boot) {
 		previousSlug: previousSlug || '',
 		bodyClass,
 		previousBodyClass: previousSlug
-			? `compass-waas-style-${previousSlug}`
+			? `theme-skin-${previousSlug}`
 			: '',
 	};
 }
@@ -46,7 +46,7 @@ function buildFallbackPayload(slug, boot) {
 		: '';
 
 	return {
-		bodyClass: `compass-waas-style-${slug}`,
+		bodyClass: `theme-skin-${slug}`,
 		styleCssUrl,
 		fontCssUrl,
 		editorExperience: {
