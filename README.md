@@ -48,9 +48,11 @@ wp theme-skin-switcher set-style fresh
 wp theme-skin-switcher get-style
 ```
 
-## REST API
+## REST API (read-only)
 
-- `GET|POST /wp-json/theme-skin-switcher/v1/style`
+- `GET /wp-json/theme-skin-switcher/v1/style` — editor boot data (authenticated users with `edit_theme_options` only; not listed in the public REST index)
+
+To **set** the active skin programmatically, use WP-CLI (`wp theme-skin-switcher set-style`) or theme mods / Site Editor save — there is no REST write endpoint.
 
 ## Hooks
 
