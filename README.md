@@ -1,13 +1,22 @@
-# theme-skin-switcher
+# Theme Skin Switcher
 
-WordPress library for block theme **design skins**: discovery, `theme.json` merge, Site Editor switcher, and provisioning (REST + WP-CLI).
+A WordPress library for **block themes** that need more than core style variations: packaged **design skins** (tokens, CSS, section patterns, dividers) with a Site Editor switcher and optional CLI provisioning.
 
-Works with any theme that ships a `design-skins/` directory (typically a child theme).
+Use it in any theme or child theme that defines a `design-skins/` directory. No proprietary stack required.
+
+## Features
+
+- Discovers skins from `design-skins/{slug}/` on the active theme (child stylesheet first, then parent)
+- Merges each skin’s `variation.json` into `theme.json` data (front end and editor)
+- Site Editor UI to preview and select a skin without a full reload
+- Persists the active skin via a theme mod and Site Settings
+- Read-only REST endpoint for editor boot data when inline scripts are incomplete
+- WP-CLI commands to list, read, and set the active skin
 
 ## Requirements
 
-- PHP 8.1+
-- WordPress 6.5+ (block themes, Site Editor)
+- PHP 8.1 or later
+- WordPress 6.5 or later (block theme, Site Editor)
 
 ## Installation
 
@@ -15,73 +24,130 @@ Works with any theme that ships a `design-skins/` directory (typically a child t
 composer require builtnorth/theme-skin-switcher
 ```
 
-## Boot
-
-From your theme `functions.php` (after Composer autoload):
+Register the autoloader in your theme, then boot once from `functions.php`:
 
 ```php
 \ThemeSkinSwitcher\App::get_instance()->boot();
 ```
 
-## Theme layout
+### Public assets (editor bundle)
 
-The engine auto-registers the first active theme directory that contains `design-skins/` (child stylesheet, then parent template):
+The package ships compiled JavaScript and CSS under `build/`. Your theme or host must expose that directory at a URL WordPress can enqueue (for example by vendoring the package under the theme’s `vendor/` directory, or via a documented symlink in local development).
 
-```
+## Theme structure
+
+Place skins on the theme that should own them (usually a **child theme**):
+
+```text
 your-theme/
-  design-skins/
-    fresh/
-      variation.json
-      style.scss
-      section-patterns/
-      section-dividers/
-  build/design-skins/
-    fresh/style.css
-  styles/              # optional core color/typography variations
+├── design-skins/
+│   ├── _default/                 # optional shared assets
+│   │   ├── section-patterns/
+│   │   └── section-dividers/
+│   └── fresh/                    # one directory per skin slug
+│       ├── variation.json        # theme.json-style variation payload
+│       ├── style.scss            # source (optional if you only ship CSS)
+│       ├── section-patterns/     # optional SVGs for pattern pickers
+│       ├── section-dividers/
+│       └── images/
+│           └── preview.svg       # optional switcher preview
+├── build/design-skins/
+│   └── fresh/
+│       └── style.css             # compiled skin stylesheet
+└── styles/                       # optional core color/typography JSON
+    ├── color/
+    └── typography/
 ```
+
+**`variation.json`** — Same general shape as a WordPress global style variation (settings, styles, presets). The package merges it into the active theme layer.
+
+**`build/design-skins/{slug}/style.css`** — Enqueued on the front end and in the editor canvas when that skin is active.
+
+Slugs are derived from directory names under `design-skins/` (lowercase, hyphenated). No manual registry is required.
+
+## Site Editor
+
+After boot, editors with `edit_theme_options` see a **Design skin** control in the Global Styles experience. Choosing a skin:
+
+1. Applies preview CSS and tokens client-side
+2. Marks the Site Editor as dirty so the user can save
+3. On save, persists `theme_skin_switcher_active_style` in theme mods
+
+The editor script handle is `theme-skin-switcher-editor`.
+
+## Active skin storage
+
+| Item | Value |
+|------|--------|
+| Theme mod | `theme_skin_switcher_active_style` |
+| Body class | `theme-skin-{slug}` (front end and admin editor screens) |
+| Block editor settings | `themeSkinSwitcherActiveSlug`, `themeSkinSwitcherActiveClass` |
+
+Older sites that stored the active slug under a different theme mod key are migrated automatically on read.
 
 ## WP-CLI
 
 ```bash
 wp theme-skin-switcher list-styles
-wp theme-skin-switcher set-style fresh
 wp theme-skin-switcher get-style
+wp theme-skin-switcher set-style fresh
 ```
 
-## REST API (read-only)
+Use CLI for installs, imports, and automation. It is the supported way to **set** a skin outside the Site Editor.
 
-- `GET /wp-json/theme-skin-switcher/v1/style` — editor boot data (authenticated users with `edit_theme_options` only; not listed in the public REST index)
+## REST API
 
-To **set** the active skin programmatically, use WP-CLI (`wp theme-skin-switcher set-style`) or theme mods / Site Editor save — there is no REST write endpoint.
+Read-only endpoint for editor boot data (styles list, switch payloads, active slug):
+
+```http
+GET /wp-json/theme-skin-switcher/v1/style
+```
+
+| Requirement | Detail |
+|-------------|--------|
+| Authentication | Logged-in user |
+| Capability | `edit_theme_options` |
+| Methods | `GET` only |
+| Discovery | Omitted from the public REST route index |
+
+There is **no** REST endpoint to change the active skin. Use WP-CLI, theme mods, or Site Editor save.
+
+Clients should send the standard WordPress REST nonce (`X-WP-Nonce` / `wp_rest`), as with other block editor requests.
 
 ## Hooks
 
-| Hook | Purpose |
-|------|---------|
-| `theme_skin_switcher_register` | After skin pack registration; call `SkinPackRegistry::register()` to override |
-| `theme_skin_switcher_client_switch_payload` | Filter editor switch payload |
-| `theme_skin_switcher_client_custom_theme_properties` | Filter CSS custom properties for client preview |
-| `theme_skin_switcher_editor_experience_data` | Filter section pattern/divider paths for the active skin |
-| `theme_skin_switcher_section_pattern_base_directories` | Extra base dirs when resolving section pattern SVGs |
+| Hook | When | Use |
+|------|------|-----|
+| `theme_skin_switcher_register` | After auto-registration of the theme pack | Register a custom pack path with `SkinPackRegistry::register()` |
+| `theme_skin_switcher_client_switch_payload` | Building editor switch payload | Adjust URLs, classes, or metadata per skin |
+| `theme_skin_switcher_client_custom_theme_properties` | Client-side token preview | Filter flattened `--wp--custom--*` variables |
+| `theme_skin_switcher_editor_experience_data` | Editor experience config array | Point pattern/divider pickers at skin subdirectories |
+| `theme_skin_switcher_section_pattern_base_directories` | Resolving section pattern SVG paths | Add filesystem base directories |
 
-Deprecated aliases (`compass_waas_*`, `polaris_editor_experience_data`, `polaris_section_pattern_base_directories`) remain supported when listeners are registered.
+Example — force a custom pack root:
 
-## Active skin storage
-
-Theme mod key: `theme_skin_switcher_active_style` (migrates automatically from `compass_waas_active_style`).
-
-Body class on front and editor: `theme-skin-{slug}`.
-
-## Optional integrations
-
-If Polaris is present, skin overrides still apply via the legacy `polaris_editor_experience_data` and `polaris_section_pattern_base_directories` hooks — no hard dependency.
+```php
+add_action('theme_skin_switcher_register', function ( $registry ) {
+    $registry->register([
+        'id'   => 'my-pack',
+        'path' => get_stylesheet_directory(),
+        'url'  => get_stylesheet_directory_uri(),
+    ]);
+});
+```
 
 ## Development
 
+From the package root:
+
 ```bash
 npm install
-npm run start   # watch editor bundle
-npm run build
+npm run start    # watch editor assets
+npm run build    # production bundle → build/assets/editor/
 ```
 
-Editor script handle: `theme-skin-switcher-editor`.
+PHP classes live under `inc/classes/` with namespace `ThemeSkinSwitcher\`.
+
+## License
+
+GPL-2.0-or-later
