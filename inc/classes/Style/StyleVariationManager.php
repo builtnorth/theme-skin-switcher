@@ -32,6 +32,9 @@ declare(strict_types=1);
 
 namespace ThemeSkinSwitcher\Style;
 
+use Polaris\Base\Container;
+use Polaris\EditorExperience\PatternConfig;
+use Polaris\EditorExperience\SectionDividerConfig;
 use ThemeSkinSwitcher\SkinPackRegistry;
 use ThemeSkinSwitcher\Traits\SingletonTrait;
 
@@ -153,6 +156,7 @@ class StyleVariationManager
 		add_filter('block_editor_settings_all', [$this, 'filter_block_editor_settings'], 20, 2);
 		add_filter('editor_stylesheets', [$this, 'append_active_skin_editor_stylesheet']);
 		add_action('enqueue_block_assets', [$this, 'enqueue_skin_for_editor_canvas'], 20);
+		add_action('enqueue_block_editor_assets', [$this, 'enqueue_skin_for_site_editor'], 20);
 
 		add_filter('theme_skin_switcher_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
 		add_filter('polaris_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
@@ -642,6 +646,26 @@ class StyleVariationManager
 	}
 
 	/**
+	 * Cache-bust token for compiled skin CSS (filemtime). Empty when the file is missing.
+	 */
+	public static function get_skin_style_css_version_for_slug(string $slug): string
+	{
+		if ($slug === '' || ! self::is_registered_skin($slug)) {
+			return '';
+		}
+
+		$path = SkinPackRegistry::get_pack_path() . self::get_skin_compiled_style_relative_path($slug);
+
+		if ($path === '' || ! is_readable($path)) {
+			return '';
+		}
+
+		$mtime = filemtime($path);
+
+		return $mtime !== false ? (string) $mtime : '';
+	}
+
+	/**
 	 * Theme-relative path (no leading slash) e.g. design-skins/fresh/variation.json.
 	 */
 	public static function get_skin_relative_path(string $slug, string $filename = ''): string
@@ -705,6 +729,131 @@ class StyleVariationManager
 		}
 
 		return null;
+	}
+
+	/**
+	 * Build available_patterns labels from SVG filenames in a theme-relative directory.
+	 *
+	 * @return array<string, string> Slug => translated label.
+	 */
+	public static function discover_labeled_assets_from_relative_directory(string $relative_directory): array
+	{
+		$pack_path = SkinPackRegistry::get_pack_path();
+
+		if ($pack_path === '') {
+			return [];
+		}
+
+		$directory = $pack_path . ltrim($relative_directory, '/') . '/';
+
+		if (! is_dir($directory)) {
+			return [];
+		}
+
+		$labels = [];
+
+		foreach (glob($directory . '*.svg') ?: [] as $file) {
+			if (! is_readable($file)) {
+				continue;
+			}
+
+			$slug = sanitize_key(pathinfo($file, PATHINFO_FILENAME));
+
+			if ($slug === '') {
+				continue;
+			}
+
+			$labels[ $slug ] = ucwords(str_replace(['-', '_'], ' ', $slug));
+		}
+
+		ksort($labels);
+
+		return $labels;
+	}
+
+	/**
+	 * Absolute asset URLs for editor pattern previews (avoids iframe path / skin sync issues).
+	 *
+	 * @param array<string, mixed> $patterns Pattern config (pattern_directory, available_patterns).
+	 * @return array<string, mixed>
+	 */
+	/**
+	 * Resolve a section-pattern asset URL (active skin dir, then design-skins/_default).
+	 */
+	public static function resolve_pattern_asset_url_for_slug(string $slug, string $primary_directory = ''): string
+	{
+		$slug = sanitize_key($slug);
+
+		if ($slug === '') {
+			return '';
+		}
+
+		$pack_url  = SkinPackRegistry::get_pack_url();
+		$pack_path = SkinPackRegistry::get_pack_path();
+
+		if ($pack_url === '' || $pack_path === '') {
+			return '';
+		}
+
+		$directories = array_unique(
+			array_filter(
+				[
+					trim($primary_directory, '/'),
+					self::get_skin_relative_path(self::SKIN_DEFAULT_DIRECTORY, self::SKIN_SECTION_PATTERNS_DIR),
+				]
+			)
+		);
+
+		$extensions = ['svg', 'png', 'jpg', 'jpeg'];
+
+		foreach ($directories as $directory) {
+			foreach ($extensions as $ext) {
+				$relative = $directory . '/' . $slug . '.' . $ext;
+				$path     = $pack_path . $relative;
+
+				if (is_readable($path)) {
+					return $pack_url . $relative;
+				}
+			}
+		}
+
+		return '';
+	}
+
+	public static function append_pattern_asset_urls(array $patterns): array
+	{
+		if (empty($patterns['available_patterns']) || ! is_array($patterns['available_patterns'])) {
+			return $patterns;
+		}
+
+		$primary_directory = isset($patterns['pattern_directory'])
+			? trim((string) $patterns['pattern_directory'], '/')
+			: '';
+
+		$default_directory = self::get_skin_relative_path(self::SKIN_DEFAULT_DIRECTORY, self::SKIN_SECTION_PATTERNS_DIR);
+
+		$slugs = array_unique(
+			array_merge(
+				array_keys($patterns['available_patterns']),
+				array_keys(self::discover_labeled_assets_from_relative_directory($default_directory))
+			)
+		);
+
+		$urls = [];
+
+		foreach ($slugs as $slug) {
+			$url = self::resolve_pattern_asset_url_for_slug((string) $slug, $primary_directory);
+
+			if ($url !== '') {
+				$urls[ sanitize_key((string) $slug) ] = $url;
+			}
+		}
+
+		if ($urls !== []) {
+			$patterns['pattern_urls'] = $urls;
+		}
+
+		return $patterns;
 	}
 
 	/**
@@ -986,10 +1135,17 @@ class StyleVariationManager
 	 */
 	public function append_active_skin_editor_stylesheet(array $stylesheets): array
 	{
-		$url = self::get_active_skin_style_css_url();
+		$slug = $this->get_active_slug();
+		$url  = self::get_active_skin_style_css_url();
 
 		if ($url === '') {
 			return $stylesheets;
+		}
+
+		$version = self::get_skin_style_css_version_for_slug($slug);
+
+		if ($version !== '') {
+			$url = add_query_arg('ver', $version, $url);
 		}
 
 		if (! in_array($url, $stylesheets, true)) {
@@ -1013,11 +1169,13 @@ class StyleVariationManager
 		$css_url = self::get_active_skin_style_css_url();
 
 		if ($css_url !== '') {
+			$version = self::get_skin_style_css_version_for_slug($slug);
+
 			wp_enqueue_style(
 				"theme-skin-switcher-style-{$slug}",
 				$css_url,
 				[],
-				defined('THEME_SKIN_SWITCHER_VERSION') ? THEME_SKIN_SWITCHER_VERSION : null
+				$version !== '' ? $version : (defined('THEME_SKIN_SWITCHER_VERSION') ? THEME_SKIN_SWITCHER_VERSION : null)
 			);
 		}
 
@@ -1034,6 +1192,87 @@ class StyleVariationManager
 		}
 
 		$this->enqueue_style_assets();
+		$this->enqueue_editor_canvas_token_styles();
+	}
+
+	/**
+	 * Site Editor renders blocks on the admin shell (not in .editor-styles-wrapper iframe),
+	 * so canvas-only enqueue_block_assets does not load skin CSS there.
+	 */
+	public function enqueue_skin_for_site_editor(): void
+	{
+		global $pagenow;
+
+		if ($pagenow !== 'site-editor.php') {
+			return;
+		}
+
+		$this->enqueue_style_assets();
+	}
+
+	/**
+	 * Token + variation.json overrides for the editor canvas (enqueue_block_assets iframe pass).
+	 */
+	private function enqueue_editor_canvas_token_styles(): void
+	{
+		$slug = $this->get_active_slug();
+
+		if ($slug === '') {
+			return;
+		}
+
+		$inline = self::build_editor_canvas_inline_css($slug);
+
+		if ($inline === '') {
+			return;
+		}
+
+		$handle = 'theme-skin-switcher-canvas-tokens';
+
+		wp_register_style($handle, false, [], defined('THEME_SKIN_SWITCHER_VERSION') ? THEME_SKIN_SWITCHER_VERSION : null);
+		wp_enqueue_style($handle);
+		wp_add_inline_style($handle, $inline);
+	}
+
+	/**
+	 * @return string CSS for :root / .editor-styles-wrapper in the canvas iframe.
+	 */
+	private static function build_editor_canvas_inline_css(string $slug): string
+	{
+		$body_class = self::get_body_class_for_slug($slug);
+
+		if ($body_class === '') {
+			return '';
+		}
+
+		$scope = ':root, body.' . $body_class . ', .editor-styles-wrapper';
+		$parts = [];
+
+		$properties = self::get_client_custom_theme_properties($slug);
+
+		if ($properties !== []) {
+			$decls = [];
+
+			foreach ($properties as $key => $val) {
+				if ($val === null || $val === '') {
+					continue;
+				}
+
+				$decls[] = $key . ': ' . (string) $val;
+			}
+
+			if ($decls !== []) {
+				$parts[] = $scope . '{' . implode(';', $decls) . '}';
+			}
+		}
+
+		$variation_css = self::get_client_variation_theme_json_css($slug);
+
+		if ($variation_css !== '') {
+			$parts[] = preg_replace('/:root\s*\{/', $scope . '{', $variation_css) ?? $variation_css;
+		}
+
+		return implode("\n", $parts);
 	}
 
 	/**
@@ -1162,6 +1401,40 @@ class StyleVariationManager
 	}
 
 	/**
+	 * Theme-registered editor experience (patterns, dividers) without active-skin overrides.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function get_theme_editor_experience_baseline(): array
+	{
+		if (! class_exists(Container::class)) {
+			return [];
+		}
+
+		try {
+			$repository = Container::instance()->get('config')->get_repository();
+		} catch (\Throwable $e) {
+			return [];
+		}
+
+		$editor_experience = [];
+
+		$patterns = PatternConfig::get($repository);
+
+		if ($patterns !== []) {
+			$editor_experience['patterns'] = $patterns;
+		}
+
+		$section_divider = SectionDividerConfig::get($repository);
+
+		if ($section_divider !== []) {
+			$editor_experience['section_divider'] = $section_divider;
+		}
+
+		return $editor_experience;
+	}
+
+	/**
 	 * Apply per-skin editor experience overrides for a given slug.
 	 *
 	 * @param array  $editor_experience Base editor experience config.
@@ -1170,7 +1443,7 @@ class StyleVariationManager
 	 */
 	public static function apply_editor_experience_for_slug(array $editor_experience, string $slug): array
 	{
-		if (empty($slug) || ! self::is_registered_skin($slug)) {
+		if ($slug === '' || ! self::is_registered_skin($slug)) {
 			return $editor_experience;
 		}
 
@@ -1178,13 +1451,21 @@ class StyleVariationManager
 
 		if ($patterns_relative !== null) {
 			$editor_experience['patterns'] = $editor_experience['patterns'] ?? [];
-			$editor_experience['patterns']['pattern_directory'] = $patterns_relative;
+			$editor_experience['patterns']['enabled']            = true;
+			$editor_experience['patterns']['pattern_directory']  = $patterns_relative;
+
+			$discovered = self::discover_labeled_assets_from_relative_directory($patterns_relative);
+
+			if ($discovered !== []) {
+				$editor_experience['patterns']['available_patterns'] = $discovered;
+			}
 		}
 
 		$motion_dividers_relative = self::resolve_skin_subdirectory_relative($slug, self::SKIN_SECTION_DIVIDERS_DIR);
 
 		if ($motion_dividers_relative !== null) {
 			$editor_experience['section_divider'] = $editor_experience['section_divider'] ?? [];
+			$editor_experience['section_divider']['enabled']           = true;
 			$editor_experience['section_divider']['divider_directory'] = $motion_dividers_relative;
 		}
 
@@ -1192,6 +1473,10 @@ class StyleVariationManager
 			'slug'       => $slug,
 			'assets_url' => self::get_skin_directory_uri($slug),
 		];
+
+		if (! empty($editor_experience['patterns']) && is_array($editor_experience['patterns'])) {
+			$editor_experience['patterns'] = self::append_pattern_asset_urls($editor_experience['patterns']);
+		}
 
 		return $editor_experience;
 	}
@@ -1206,6 +1491,11 @@ class StyleVariationManager
 	public static function get_client_switch_payload(string $slug, string $previous_slug = ''): array
 	{
 		$style_css_url = self::get_active_skin_style_css_url_for_slug($slug);
+		$style_version = self::get_skin_style_css_version_for_slug($slug);
+
+		if ($style_css_url !== '' && $style_version !== '') {
+			$style_css_url = add_query_arg('ver', $style_version, $style_css_url);
+		}
 
 		$font_css_url = '';
 		$font_query   = self::get_google_font_query_for_slug($slug);
@@ -1214,8 +1504,10 @@ class StyleVariationManager
 			$font_css_url = 'https://fonts.googleapis.com/css2?family=' . $font_query . '&display=swap';
 		}
 
-		// Lightweight patch only — avoid rebuilding full editor experience config.
-		$editor_experience = self::apply_editor_experience_for_slug([], $slug);
+		$editor_experience = self::apply_editor_experience_for_slug(
+			self::get_theme_editor_experience_baseline(),
+			$slug
+		);
 
 		$payload = [
 			'slug'                    => $slug,
