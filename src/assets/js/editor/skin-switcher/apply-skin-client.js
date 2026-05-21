@@ -271,19 +271,48 @@ function mergeEditorExperience(patch) {
 
 	const current = window.polaris_localize.blocks.editor_experience || {};
 
-	window.polaris_localize.blocks.editor_experience = {
+	const merged = {
 		...current,
 		...patch,
-		patterns: {
-			...(current.patterns || {}),
-			...(patch.patterns || {}),
-		},
-		section_divider: {
-			...(current.section_divider || {}),
-			...(patch.section_divider || {}),
-		},
 		active_style: patch.active_style || current.active_style,
 	};
+
+	if (patch.patterns) {
+		merged.patterns = {
+			...(current.patterns || {}),
+			...patch.patterns,
+		};
+
+		if (Object.prototype.hasOwnProperty.call(patch.patterns, 'available_patterns')) {
+			merged.patterns.available_patterns = patch.patterns.available_patterns;
+		}
+
+		if (Object.prototype.hasOwnProperty.call(patch.patterns, 'pattern_directory')) {
+			merged.patterns.pattern_directory = patch.patterns.pattern_directory;
+		}
+
+		if (Object.prototype.hasOwnProperty.call(patch.patterns, 'pattern_urls')) {
+			merged.patterns.pattern_urls = patch.patterns.pattern_urls;
+		}
+	} else {
+		merged.patterns = current.patterns;
+	}
+
+	if (patch.section_divider) {
+		merged.section_divider = {
+			...(current.section_divider || {}),
+			...patch.section_divider,
+		};
+
+		if (Object.prototype.hasOwnProperty.call(patch.section_divider, 'divider_directory')) {
+			merged.section_divider.divider_directory =
+				patch.section_divider.divider_directory;
+		}
+	} else {
+		merged.section_divider = current.section_divider;
+	}
+
+	window.polaris_localize.blocks.editor_experience = merged;
 }
 
 /**
@@ -315,9 +344,11 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 		upsertStylesheet(doc, SKIN_STYLE_LINK_ID, styleCssUrl, { bust });
 		upsertStylesheet(doc, SKIN_FONT_LINK_ID, fontCssUrl, { bust });
 		swapBodyClasses(doc, bodyClass);
-		applyCustomThemeProperties(doc, bodyClass, customThemeProperties);
-		applyVariationThemeJsonCss(doc, bodyClass, variationThemeJsonCss);
 	});
+
+	// Token overrides on the editor shell only — canvas iframe uses enqueue_block_assets (see PHP).
+	applyCustomThemeProperties(document, bodyClass, customThemeProperties);
+	applyVariationThemeJsonCss(document, bodyClass, variationThemeJsonCss);
 }
 
 /**
