@@ -224,10 +224,22 @@ class StyleVariationManager
 
 	/**
 	 * Whether enqueue_block_assets should load canvas (iframe) styles in the block editor.
+	 *
+	 * WP 7.0+ Site Editor preview is always iframed; block_assets is the iframe enqueue pass.
 	 */
 	private static function should_enqueue_in_block_assets(): bool
 	{
-		return is_admin() && ! wp_should_load_block_editor_scripts_and_styles();
+		if (! is_admin()) {
+			return false;
+		}
+
+		global $pagenow;
+
+		if ($pagenow === 'site-editor.php') {
+			return true;
+		}
+
+		return ! wp_should_load_block_editor_scripts_and_styles();
 	}
 
 	/**
@@ -1196,8 +1208,7 @@ class StyleVariationManager
 	}
 
 	/**
-	 * Site Editor renders blocks on the admin shell (not in .editor-styles-wrapper iframe),
-	 * so canvas-only enqueue_block_assets does not load skin CSS there.
+	 * Site Editor shell (styles UI, chrome). Canvas preview is iframed — see enqueue_skin_for_editor_canvas().
 	 */
 	public function enqueue_skin_for_site_editor(): void
 	{
@@ -1208,6 +1219,7 @@ class StyleVariationManager
 		}
 
 		$this->enqueue_style_assets();
+		$this->enqueue_editor_canvas_token_styles();
 	}
 
 	/**

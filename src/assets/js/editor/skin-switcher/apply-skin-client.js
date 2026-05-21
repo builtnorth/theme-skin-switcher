@@ -344,11 +344,10 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 		upsertStylesheet(doc, SKIN_STYLE_LINK_ID, styleCssUrl, { bust });
 		upsertStylesheet(doc, SKIN_FONT_LINK_ID, fontCssUrl, { bust });
 		swapBodyClasses(doc, bodyClass);
+		// WP 7.0+ Site Editor canvas is iframed; variation.json tokens must reach every document.
+		applyCustomThemeProperties(doc, bodyClass, customThemeProperties);
+		applyVariationThemeJsonCss(doc, bodyClass, variationThemeJsonCss);
 	});
-
-	// Token overrides on the editor shell only — canvas iframe uses enqueue_block_assets (see PHP).
-	applyCustomThemeProperties(document, bodyClass, customThemeProperties);
-	applyVariationThemeJsonCss(document, bodyClass, variationThemeJsonCss);
 }
 
 /**

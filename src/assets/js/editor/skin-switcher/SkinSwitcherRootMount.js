@@ -12,16 +12,26 @@ const SKIN_MOUNT_ID = 'theme-skin-switcher-root-mount';
 const NOTICE_MOUNT_ID = 'theme-skin-switcher-accessibility-mount';
 
 function findStylesRootStack() {
-	const root = document.querySelector('.edit-site-global-styles-screen-root');
+	// WP 7.0+: Global Styles UI moved to @wordpress/global-styles-ui (new root class).
+	// Pre-7.0: .edit-site-global-styles-screen-root in @wordpress/edit-site.
+	const root =
+		document.querySelector('.global-styles-ui-screen-root') ||
+		document.querySelector('.edit-site-global-styles-screen-root');
 
 	if (!root) {
 		return null;
 	}
 
+	const cardBody = root.querySelector('.components-card__body');
+
+	if (!cardBody) {
+		return null;
+	}
+
 	return (
-		root.querySelector('.components-card__body .components-flex-gap-4') ||
-		root.querySelector('.components-card__body > .components-v-stack') ||
-		root.querySelector('.components-card__body > div')
+		cardBody.querySelector('.components-v-stack') ||
+		cardBody.querySelector('.components-flex-gap-4') ||
+		cardBody.querySelector(':scope > div')
 	);
 }
 
