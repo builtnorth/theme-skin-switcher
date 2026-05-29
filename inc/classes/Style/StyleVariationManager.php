@@ -233,12 +233,6 @@ class StyleVariationManager
 			return false;
 		}
 
-		global $pagenow;
-
-		if ($pagenow === 'site-editor.php') {
-			return true;
-		}
-
 		return ! wp_should_load_block_editor_scripts_and_styles();
 	}
 
@@ -1103,13 +1097,7 @@ class StyleVariationManager
 	 */
 	public function register_active_skin_editor_style(): void
 	{
-		$slug = $this->get_active_slug();
-
-		if ($slug === '' || ! self::is_registered_skin($slug)) {
-			return;
-		}
-
-		// Skin CSS is enqueued via append_active_skin_editor_stylesheet (absolute pack URL).
+		// Skin CSS loads in the canvas iframe via enqueue_skin_for_editor_canvas().
 	}
 
 	/**
@@ -1208,7 +1196,8 @@ class StyleVariationManager
 	}
 
 	/**
-	 * Site Editor shell (styles UI, chrome). Canvas preview is iframed — see enqueue_skin_for_editor_canvas().
+	 * Site Editor shell: fonts only. Skin CSS + tokens load in the canvas iframe via
+	 * {@see enqueue_skin_for_editor_canvas()} (enqueue_block_assets iframe pass).
 	 */
 	public function enqueue_skin_for_site_editor(): void
 	{
@@ -1218,8 +1207,7 @@ class StyleVariationManager
 			return;
 		}
 
-		$this->enqueue_style_assets();
-		$this->enqueue_editor_canvas_token_styles();
+		$this->enqueue_google_font($this->get_active_slug());
 	}
 
 	/**
