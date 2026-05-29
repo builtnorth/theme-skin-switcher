@@ -425,7 +425,7 @@ class StyleVariationManager
 	 *
 	 * @param array        $node settings.custom subtree or nested object therein.
 	 * @param list<string> $path Path segments under settings.custom.
-	 * @return array<string, string> e.g. array( '--wp--custom--border-radius--small' => '0px' ).
+	 * @return array<string, string> e.g. array( '--wp--custom--border-radius--tile' => 'var(--wp--preset--border-radius--medium)' ).
 	 */
 	private static function flatten_theme_json_custom_to_css_vars(array $node, array $path = []): array
 	{
