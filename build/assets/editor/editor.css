@@ -15,8 +15,7 @@
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   border-radius: 2px;
   border: 1px solid rgba(0, 0, 0, 0.12);
 }
@@ -30,7 +29,6 @@
   justify-content: flex-start;
   text-align: left;
 }
-
 .theme-skin-switcher__select .components-custom-select-control__hint {
   display: flex;
   align-items: center;
@@ -38,11 +36,9 @@
   width: 100%;
   text-align: left;
 }
-
 .theme-skin-switcher__select .components-custom-select-control__item {
   width: 100%;
 }
-
 .theme-skin-switcher__select .components-custom-select-control__item-hint {
   display: flex;
   align-items: center;
@@ -50,14 +46,12 @@
   width: 100%;
   text-align: left;
 }
-
 .theme-skin-switcher__select .components-custom-select-control__item-icon {
   order: -1;
   margin-right: 0;
   margin-left: 0;
   flex-shrink: 0;
 }
-
 .theme-skin-switcher__select .components-custom-select-control__item-icon .theme-skin-switcher__option-preview {
   display: block;
 }
@@ -72,7 +66,6 @@
   margin: 16px 0 0;
   width: 100%;
 }
-
 .theme-skin-switcher-accessibility-notice .components-notice__content {
   font-size: 12px;
   line-height: 1.5;

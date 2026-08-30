@@ -2,11 +2,11 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/assets/js/editor/skin-switcher/SkinPreviewImage.js":
+/***/ "./src/assets/js/editor/skin-switcher/SkinPreviewImage.js"
 /*!****************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/SkinPreviewImage.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -40,13 +40,13 @@ function SkinPreviewImage({
   });
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/SkinSwitcherRootCard.js":
+/***/ "./src/assets/js/editor/skin-switcher/SkinSwitcherRootCard.js"
 /*!********************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/SkinSwitcherRootCard.js ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -133,13 +133,13 @@ function SkinSwitcherRootCard() {
   });
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/SkinSwitcherRootMount.js":
+/***/ "./src/assets/js/editor/skin-switcher/SkinSwitcherRootMount.js"
 /*!*********************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/SkinSwitcherRootMount.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -253,13 +253,13 @@ function SkinSwitcherRootMount() {
   });
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/StylesAccessibilityNotice.js":
+/***/ "./src/assets/js/editor/skin-switcher/StylesAccessibilityNotice.js"
 /*!*************************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/StylesAccessibilityNotice.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -290,13 +290,13 @@ function StylesAccessibilityNotice() {
   });
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/apply-skin-client.js":
+/***/ "./src/assets/js/editor/skin-switcher/apply-skin-client.js"
 /*!*****************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/apply-skin-client.js ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -709,13 +709,13 @@ function applySkinClientSide(payload) {
   return payload;
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/boot-data.js":
+/***/ "./src/assets/js/editor/skin-switcher/boot-data.js"
 /*!*********************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/boot-data.js ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -729,13 +729,13 @@ function getSkinSwitcherBootData() {
   return window[LOCALIZED_GLOBAL] || {};
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/client-switch-payload.js":
+/***/ "./src/assets/js/editor/skin-switcher/client-switch-payload.js"
 /*!*********************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/client-switch-payload.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -813,13 +813,13 @@ function mergeBootFromResponse(boot, response) {
   }
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/index.js":
+/***/ "./src/assets/js/editor/skin-switcher/index.js"
 /*!*****************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/index.js ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
@@ -845,20 +845,20 @@ const boot = (0,_boot_data__WEBPACK_IMPORTED_MODULE_2__.getSkinSwitcherBootData)
 if (boot.nonce) {
   _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default().use(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default().createNonceMiddleware(boot.nonce));
 }
-(0,_skin_persistence__WEBPACK_IMPORTED_MODULE_3__.initSkinPersistence)();
+;(0,_skin_persistence__WEBPACK_IMPORTED_MODULE_3__.initSkinPersistence)();
 (0,_skin_site_editor_save__WEBPACK_IMPORTED_MODULE_4__.initSkinSiteEditorSave)();
 (0,_wordpress_plugins__WEBPACK_IMPORTED_MODULE_1__.registerPlugin)('theme-skin-switcher', {
   render: _SkinSwitcherRootMount__WEBPACK_IMPORTED_MODULE_5__["default"],
   icon: null
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/skin-persistence.js":
+/***/ "./src/assets/js/editor/skin-switcher/skin-persistence.js"
 /*!****************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/skin-persistence.js ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -913,7 +913,7 @@ function reapplyActiveSkin() {
   if (!payload?.styleCssUrl) {
     return;
   }
-  (0,_apply_skin_client__WEBPACK_IMPORTED_MODULE_2__.reapplyActiveSkinToDocuments)(payload);
+  ;(0,_apply_skin_client__WEBPACK_IMPORTED_MODULE_2__.reapplyActiveSkinToDocuments)(payload);
 }
 
 /**
@@ -952,13 +952,13 @@ function initSkinPersistence() {
   window.setTimeout(reapplyActiveSkin, 500);
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/skin-site-editor-save.js":
+/***/ "./src/assets/js/editor/skin-switcher/skin-site-editor-save.js"
 /*!*********************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/skin-site-editor-save.js ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -986,7 +986,6 @@ function getSettingKey() {
  * Read the saved or in-progress skin slug from the site settings entity.
  */
 function getSiteEditorSkinSlug() {
-  var _ref, _record$key;
   const boot = (0,_boot_data__WEBPACK_IMPORTED_MODULE_1__.getSkinSwitcherBootData)();
   const key = getSettingKey();
   const core = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.select)('core');
@@ -998,7 +997,7 @@ function getSiteEditorSkinSlug() {
   if (edits && Object.prototype.hasOwnProperty.call(edits, key)) {
     return edits[key] || '';
   }
-  return (_ref = (_record$key = record?.[key]) !== null && _record$key !== void 0 ? _record$key : boot?.activeSlug) !== null && _ref !== void 0 ? _ref : '';
+  return record?.[key] ?? boot?.activeSlug ?? '';
 }
 
 /**
@@ -1068,25 +1067,13 @@ function initSkinSiteEditorSave() {
   });
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/skin-switcher.scss":
-/*!***************************************************************!*\
-  !*** ./src/assets/js/editor/skin-switcher/skin-switcher.scss ***!
-  \***************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
-/***/ "./src/assets/js/editor/skin-switcher/useActiveSkin.js":
+/***/ "./src/assets/js/editor/skin-switcher/useActiveSkin.js"
 /*!*************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/useActiveSkin.js ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -1134,7 +1121,7 @@ function useActiveSkin() {
       if (cancelled) {
         return;
       }
-      (0,_client_switch_payload__WEBPACK_IMPORTED_MODULE_3__.mergeBootFromResponse)(boot, response);
+      ;(0,_client_switch_payload__WEBPACK_IMPORTED_MODULE_3__.mergeBootFromResponse)(boot, response);
       setActiveSlug((0,_apply_skin_client__WEBPACK_IMPORTED_MODULE_4__.getLastAppliedSkinSlug)() || response.slug || boot.activeSlug || '');
       setStyles(response.styles || boot.styles || []);
     }).catch(() => {
@@ -1158,13 +1145,13 @@ function useActiveSkin() {
   };
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./src/assets/js/editor/skin-switcher/useApplySkin.js":
+/***/ "./src/assets/js/editor/skin-switcher/useApplySkin.js"
 /*!************************************************************!*\
   !*** ./src/assets/js/editor/skin-switcher/useApplySkin.js ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -1214,7 +1201,7 @@ function useApplySkin({
       setError((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Could not switch design skin. Please reload the editor.', 'theme-skin-switcher'));
       return;
     }
-    (0,_apply_skin_client__WEBPACK_IMPORTED_MODULE_5__.applySkinClientSide)(payload);
+    ;(0,_apply_skin_client__WEBPACK_IMPORTED_MODULE_5__.applySkinClientSide)(payload);
     (0,_skin_site_editor_save__WEBPACK_IMPORTED_MODULE_6__.markSkinEditInSiteEditor)(slug);
     onApplied?.({
       slug
@@ -1227,98 +1214,116 @@ function useApplySkin({
   };
 }
 
-/***/ }),
+/***/ },
 
-/***/ "@wordpress/api-fetch":
-/*!**********************************!*\
-  !*** external ["wp","apiFetch"] ***!
-  \**********************************/
-/***/ ((module) => {
+/***/ "./src/assets/js/editor/skin-switcher/skin-switcher.scss"
+/*!***************************************************************!*\
+  !*** ./src/assets/js/editor/skin-switcher/skin-switcher.scss ***!
+  \***************************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
-module.exports = window["wp"]["apiFetch"];
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
 
-/***/ }),
 
-/***/ "@wordpress/components":
-/*!************************************!*\
-  !*** external ["wp","components"] ***!
-  \************************************/
-/***/ ((module) => {
+/***/ },
 
-module.exports = window["wp"]["components"];
-
-/***/ }),
-
-/***/ "@wordpress/data":
-/*!******************************!*\
-  !*** external ["wp","data"] ***!
-  \******************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["data"];
-
-/***/ }),
-
-/***/ "@wordpress/element":
-/*!*********************************!*\
-  !*** external ["wp","element"] ***!
-  \*********************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["element"];
-
-/***/ }),
-
-/***/ "@wordpress/i18n":
-/*!******************************!*\
-  !*** external ["wp","i18n"] ***!
-  \******************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["i18n"];
-
-/***/ }),
-
-/***/ "@wordpress/plugins":
-/*!*********************************!*\
-  !*** external ["wp","plugins"] ***!
-  \*********************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["plugins"];
-
-/***/ }),
-
-/***/ "react/jsx-runtime":
+/***/ "react/jsx-runtime"
 /*!**********************************!*\
   !*** external "ReactJSXRuntime" ***!
   \**********************************/
-/***/ ((module) => {
+(module) {
 
 module.exports = window["ReactJSXRuntime"];
 
-/***/ })
+/***/ },
+
+/***/ "@wordpress/api-fetch"
+/*!**********************************!*\
+  !*** external ["wp","apiFetch"] ***!
+  \**********************************/
+(module) {
+
+module.exports = window["wp"]["apiFetch"];
+
+/***/ },
+
+/***/ "@wordpress/components"
+/*!************************************!*\
+  !*** external ["wp","components"] ***!
+  \************************************/
+(module) {
+
+module.exports = window["wp"]["components"];
+
+/***/ },
+
+/***/ "@wordpress/data"
+/*!******************************!*\
+  !*** external ["wp","data"] ***!
+  \******************************/
+(module) {
+
+module.exports = window["wp"]["data"];
+
+/***/ },
+
+/***/ "@wordpress/element"
+/*!*********************************!*\
+  !*** external ["wp","element"] ***!
+  \*********************************/
+(module) {
+
+module.exports = window["wp"]["element"];
+
+/***/ },
+
+/***/ "@wordpress/i18n"
+/*!******************************!*\
+  !*** external ["wp","i18n"] ***!
+  \******************************/
+(module) {
+
+module.exports = window["wp"]["i18n"];
+
+/***/ },
+
+/***/ "@wordpress/plugins"
+/*!*********************************!*\
+  !*** external ["wp","plugins"] ***!
+  \*********************************/
+(module) {
+
+module.exports = window["wp"]["plugins"];
+
+/***/ }
 
 /******/ 	});
 /************************************************************************/
 /******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
+/******/ 	const __webpack_module_cache__ = {};
 /******/ 	
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		const cachedModule = __webpack_module_cache__[moduleId];
 /******/ 		if (cachedModule !== undefined) {
 /******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 		const module = __webpack_module_cache__[moduleId] = {
 /******/ 			// no module.id needed
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			const e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module
@@ -1327,47 +1332,37 @@ module.exports = window["ReactJSXRuntime"];
 /******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__webpack_require__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__webpack_require__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = (module) => {
+/******/ 		const getter = module && module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__webpack_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
+/******/ 	// define getter/value functions for harmony exports
+/******/ 	__webpack_require__.d = (exports, definition) => {
+/******/ 		for(var key in definition) {
+/******/ 			if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 			}
-/******/ 		};
-/******/ 	})();
+/******/ 		}
+/******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
+/******/ 	__webpack_require__.o = (obj, prop) => (Object.hasOwn(obj, prop));
 /******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = (exports) => {
+/******/ 		Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
+let __webpack_exports__ = {};
 // This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 (() => {
 /*!****************************************!*\
