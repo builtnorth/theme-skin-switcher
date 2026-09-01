@@ -788,17 +788,37 @@ class StyleVariationManager
 	 */
 	public static function resolve_pattern_asset_url_for_slug(string $slug, string $primary_directory = ''): string
 	{
+		$resolved = self::resolve_pattern_asset_for_slug($slug, $primary_directory);
+
+		return $resolved['url'];
+	}
+
+	/**
+	 * Resolve a section pattern asset URL and extension for a slug.
+	 *
+	 * @param string $slug              Pattern slug.
+	 * @param string $primary_directory Optional primary pattern directory.
+	 * @return array{url: string, ext: string}
+	 */
+	public static function resolve_pattern_asset_for_slug(string $slug, string $primary_directory = ''): array
+	{
 		$slug = sanitize_key($slug);
 
 		if ($slug === '') {
-			return '';
+			return [
+				'url' => '',
+				'ext' => '',
+			];
 		}
 
 		$pack_url  = SkinPackRegistry::get_pack_url();
 		$pack_path = SkinPackRegistry::get_pack_path();
 
 		if ($pack_url === '' || $pack_path === '') {
-			return '';
+			return [
+				'url' => '',
+				'ext' => '',
+			];
 		}
 
 		$directories = array_unique(
@@ -810,7 +830,7 @@ class StyleVariationManager
 			)
 		);
 
-		$extensions = ['svg', 'png', 'jpg', 'jpeg'];
+		$extensions = ['svg', 'png', 'jpg', 'jpeg', 'webp'];
 
 		foreach ($directories as $directory) {
 			foreach ($extensions as $ext) {
@@ -818,12 +838,18 @@ class StyleVariationManager
 				$path     = $pack_path . $relative;
 
 				if (is_readable($path)) {
-					return $pack_url . $relative;
+					return [
+						'url' => $pack_url . $relative,
+						'ext' => $ext,
+					];
 				}
 			}
 		}
 
-		return '';
+		return [
+			'url' => '',
+			'ext' => '',
+		];
 	}
 
 	public static function append_pattern_asset_urls(array $patterns): array
@@ -845,18 +871,32 @@ class StyleVariationManager
 			)
 		);
 
-		$urls = [];
+		$urls        = [];
+		$extensions  = is_array($patterns['pattern_extensions'] ?? null)
+			? $patterns['pattern_extensions']
+			: [];
 
 		foreach ($slugs as $slug) {
-			$url = self::resolve_pattern_asset_url_for_slug((string) $slug, $primary_directory);
+			$resolved = self::resolve_pattern_asset_for_slug((string) $slug, $primary_directory);
 
-			if ($url !== '') {
-				$urls[ sanitize_key((string) $slug) ] = $url;
+			if ($resolved['url'] !== '') {
+				$urls[ sanitize_key((string) $slug) ]        = $resolved['url'];
+				$extensions[ sanitize_key((string) $slug) ] = $resolved['ext'];
 			}
 		}
 
 		if ($urls !== []) {
-			$patterns['pattern_urls'] = $urls;
+			$patterns['pattern_urls'] = array_merge(
+				is_array($patterns['pattern_urls'] ?? null) ? $patterns['pattern_urls'] : [],
+				$urls
+			);
+		}
+
+		if ($extensions !== []) {
+			$patterns['pattern_extensions'] = array_merge(
+				is_array($patterns['pattern_extensions'] ?? null) ? $patterns['pattern_extensions'] : [],
+				$extensions
+			);
 		}
 
 		return $patterns;
