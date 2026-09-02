@@ -1,1 +1,72 @@
-.theme-skin-switcher__field{margin-bottom:8px;width:100%}.theme-skin-switcher__select{width:100%}.theme-skin-switcher__option-preview{border:1px solid rgba(0,0,0,.12);border-radius:2px;display:block;flex-shrink:0;height:32px;object-fit:cover;width:32px}.theme-skin-switcher__option-preview--fallback{background:linear-gradient(-135deg,#f0f0f0 50%,#ccc 0)}.theme-skin-switcher__select .components-custom-select-control__button{justify-content:flex-start;text-align:right;width:100%}.theme-skin-switcher__select .components-custom-select-control__hint{align-items:center;display:flex;gap:10px;text-align:right;width:100%}.theme-skin-switcher__select .components-custom-select-control__item{width:100%}.theme-skin-switcher__select .components-custom-select-control__item-hint{align-items:center;display:flex;gap:10px;text-align:right;width:100%}.theme-skin-switcher__select .components-custom-select-control__item-icon{flex-shrink:0;margin-right:0;margin-left:0;order:-1}.theme-skin-switcher__select .components-custom-select-control__item-icon .theme-skin-switcher__option-preview{display:block}.theme-skin-switcher__error{color:#b32d2e;font-size:12px;margin:8px 0 0}.theme-skin-switcher-accessibility-notice{margin:16px 0 0;width:100%}.theme-skin-switcher-accessibility-notice .components-notice__content{font-size:12px;line-height:1.5}
+/*!******************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!../../node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!../../node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/assets/js/editor/skin-switcher/skin-switcher.scss ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************/
+.theme-skin-switcher__field {
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.theme-skin-switcher__select {
+  width: 100%;
+}
+
+.theme-skin-switcher__option-preview {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.theme-skin-switcher__option-preview--fallback {
+  background: linear-gradient(-135deg, #f0f0f0 50%, #ccc 50%);
+}
+
+.theme-skin-switcher__select .components-custom-select-control__button {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: right;
+}
+.theme-skin-switcher__select .components-custom-select-control__hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: right;
+}
+.theme-skin-switcher__select .components-custom-select-control__item {
+  width: 100%;
+}
+.theme-skin-switcher__select .components-custom-select-control__item-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: right;
+}
+.theme-skin-switcher__select .components-custom-select-control__item-icon {
+  order: -1;
+  margin-left: 0;
+  margin-right: 0;
+  flex-shrink: 0;
+}
+.theme-skin-switcher__select .components-custom-select-control__item-icon .theme-skin-switcher__option-preview {
+  display: block;
+}
+
+.theme-skin-switcher__error {
+  margin: 8px 0 0;
+  color: #b32d2e;
+  font-size: 12px;
+}
+
+.theme-skin-switcher-accessibility-notice {
+  margin: 16px 0 0;
+  width: 100%;
+}
+.theme-skin-switcher-accessibility-notice .components-notice__content {
+  font-size: 12px;
+  line-height: 1.5;
+}
