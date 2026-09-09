@@ -27,5 +27,4 @@ jobs:
       prerelease: ${{ inputs.prerelease }}
     permissions:
       contents: write
-    secrets:
-      POLARIS_PLUGIN_GITHUB_TOKEN: ${{ secrets.POLARIS_PLUGIN_GITHUB_TOKEN }}
+    secrets: inherit
