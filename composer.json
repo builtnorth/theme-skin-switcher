@@ -1,25 +1,25 @@
 {
-  "name": "builtnorth/theme-skin-switcher",
-  "description": "Design skin engine and Site Editor switcher for WordPress block themes.",
-  "type": "library",
-  "license": "GPL-2.0-or-later",
-  "autoload": {
-    "psr-4": {
-      "ThemeSkinSwitcher\\": "inc/classes/"
-    }
-  },
-  "require": {
-    "php": ">=8.1"
-  },
-  "config": {
-    "optimize-autoloader": false,
-    "prepend-autoloader": false
-  },
-  "minimum-stability": "stable",
-  "prefer-stable": true,
-  "extra": {
-    "branch-alias": {
-      "dev-main": "2.0.x-dev"
-    }
-  }
+	"name": "builtnorth/theme-skin-switcher",
+	"description": "Design skin engine and Site Editor switcher for WordPress block themes.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"autoload": {
+		"psr-4": {
+			"ThemeSkinSwitcher\\": "inc/classes/"
+		}
+	},
+	"require": {
+		"php": ">=8.1"
+	},
+	"config": {
+		"optimize-autoloader": false,
+		"prepend-autoloader": false
+	},
+	"minimum-stability": "stable",
+	"prefer-stable": true,
+	"extra": {
+		"branch-alias": {
+			"dev-main": "2.0.x-dev"
+		}
+	}
 }
