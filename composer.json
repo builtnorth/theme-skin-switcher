@@ -11,6 +11,9 @@
 	"require": {
 		"php": ">=8.1"
 	},
+	"scripts": {
+		"test": "echo 'Theme skin switcher tests not yet configured'"
+	},
 	"config": {
 		"optimize-autoloader": false,
 		"prepend-autoloader": false
