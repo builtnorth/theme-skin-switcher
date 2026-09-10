@@ -5,15 +5,14 @@
  * Style Provisioner
  * ------------------------------------------------------------------
  *
- * Registers the WP-CLI command and read-only REST API used by the
- * Site Editor skin switcher to load boot data.
+ * Registers the WP-CLI command used to manage skin variations.
  *
  * WP-CLI (write operations):
  *   lando wp theme-skin-switcher set-style <slug>
  *   lando wp theme-skin-switcher list-styles
  *   lando wp theme-skin-switcher get-style
  *
- * REST API (read-only):
+ * REST API (read-only): see {@see \ThemeSkinSwitcher\RestAPI\StyleRoute}.
  *   GET /wp-json/theme-skin-switcher/v1/style
  *
  * @package ThemeSkinSwitcher\Provisioning
@@ -24,7 +23,6 @@ declare(strict_types=1);
 
 namespace ThemeSkinSwitcher\Provisioning;
 
-use ThemeSkinSwitcher\SkinPackRegistry;
 use ThemeSkinSwitcher\Style\StyleVariationManager;
 
 // Don't load directly.
@@ -33,101 +31,13 @@ defined('ABSPATH') || defined('WP_CLI') || exit;
 class StyleProvisioner
 {
 	/**
-	 * REST API namespace.
-	 */
-	const REST_NAMESPACE = 'theme-skin-switcher/v1';
-
-	/**
-	 * REST API route.
-	 */
-	const REST_ROUTE = '/style';
-
-	/**
-	 * Capability required to read skin switcher data via REST.
-	 */
-	const REST_READ_CAPABILITY = 'edit_theme_options';
-
-	/**
-	 * Boot: register CLI commands and REST routes.
+	 * Boot: register CLI commands.
 	 */
 	public static function boot(): void
 	{
-		add_action('rest_api_init', [__CLASS__, 'register_rest_routes']);
-
 		if (defined('WP_CLI') && WP_CLI) {
 			\WP_CLI::add_command('theme-skin-switcher', __CLASS__);
 		}
-	}
-
-	// -----------------------------------------------------------------------
-	// REST API (read-only)
-	// -----------------------------------------------------------------------
-
-	/**
-	 * Register read-only REST route for editor boot data.
-	 */
-	public static function register_rest_routes(): void
-	{
-		register_rest_route(
-			self::REST_NAMESPACE,
-			self::REST_ROUTE,
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [__CLASS__, 'rest_get_style'],
-				'permission_callback' => [__CLASS__, 'rest_get_permission'],
-				'show_in_index'       => false,
-			]
-		);
-	}
-
-	/**
-	 * Permission callback for GET /style.
-	 *
-	 * Requires an authenticated user who can edit theme/global styles (Site Editor).
-	 *
-	 * @param \WP_REST_Request $request Incoming request.
-	 * @return bool|\WP_Error
-	 */
-	public static function rest_get_permission(\WP_REST_Request $request): bool|\WP_Error
-	{
-		unset($request);
-
-		if (! is_user_logged_in()) {
-			return new \WP_Error(
-				'rest_not_logged_in',
-				__('You must be logged in to access design skin data.', 'theme-skin-switcher'),
-				['status' => 401]
-			);
-		}
-
-		if (! current_user_can(self::REST_READ_CAPABILITY)) {
-			return new \WP_Error(
-				'rest_forbidden',
-				__('You do not have permission to view design skins.', 'theme-skin-switcher'),
-				['status' => 403]
-			);
-		}
-
-		return true;
-	}
-
-	/**
-	 * REST GET: return active skin and editor boot payloads.
-	 *
-	 * @return \WP_REST_Response
-	 */
-	public static function rest_get_style(): \WP_REST_Response
-	{
-		$manager = StyleVariationManager::get_instance();
-
-		return rest_ensure_response([
-			'slug'             => $manager->get_active_slug(),
-			'available_styles' => StyleVariationManager::get_available_styles(),
-			'styles'           => StyleVariationManager::get_editor_style_definitions(),
-			'themeUrl'         => SkinPackRegistry::get_pack_url() ?: trailingslashit(get_template_directory_uri()),
-			'styleFonts'       => StyleVariationManager::get_style_font_queries(),
-			'switchPayloads'   => StyleVariationManager::get_all_client_switch_payloads(),
-		]);
 	}
 
 	// -----------------------------------------------------------------------

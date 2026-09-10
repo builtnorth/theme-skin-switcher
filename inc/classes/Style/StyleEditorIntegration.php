@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace ThemeSkinSwitcher\Style;
 
-use ThemeSkinSwitcher\Provisioning\StyleProvisioner;
+use ThemeSkinSwitcher\RestAPI\StyleRoute;
 use ThemeSkinSwitcher\SkinPackRegistry;
 
 // Don't load directly.
@@ -130,8 +130,8 @@ class StyleEditorIntegration
 		$manager = StyleVariationManager::get_instance();
 
 		return [
-			'restNamespace'  => StyleProvisioner::REST_NAMESPACE,
-			'restRoute'      => StyleProvisioner::REST_ROUTE,
+			'restNamespace'  => StyleRoute::REST_NAMESPACE,
+			'restRoute'      => StyleRoute::REST_ROUTE,
 			'nonce'          => wp_create_nonce('wp_rest'),
 			'themeUrl'       => SkinPackRegistry::get_pack_url() ?: trailingslashit(get_template_directory_uri()),
 			'styleFonts'     => StyleVariationManager::get_style_font_queries(),

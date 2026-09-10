@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ThemeSkinSwitcher;
 
 use ThemeSkinSwitcher\Provisioning\StyleProvisioner;
+use ThemeSkinSwitcher\RestAPI\StyleRoute;
 use ThemeSkinSwitcher\Style\StyleEditorIntegration;
 use ThemeSkinSwitcher\Style\StyleVariationManager;
 use ThemeSkinSwitcher\Traits\SingletonTrait;
@@ -130,6 +131,8 @@ class App
 		StyleVariationManager::get_instance()->boot();
 		StyleProvisioner::boot();
 		StyleEditorIntegration::boot();
+
+		add_action('rest_api_init', [StyleRoute::class, 'register']);
 	}
 
 	public function enqueue_editor_assets(): void
