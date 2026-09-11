@@ -10,8 +10,6 @@ declare(strict_types=1);
 
 use ThemeSkinSwitcher\Style\StyleVariationManager;
 
-defined('ABSPATH') || defined('WP_CLI') || exit;
-
 if (! function_exists('theme_skin_switcher_append_pattern_asset_urls')) {
 	/**
 	 * Resolve and append asset URLs for the active skin's section patterns.
