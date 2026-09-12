@@ -3,7 +3,7 @@
 /**
  * REST: active skin + Site Editor boot data (read-only).
  *
- * Uses meridian/rest's AdminOperationalPermission so an authenticated user with
+ * Uses novalis/rest's AdminOperationalPermission so an authenticated user with
  * `edit_theme_options` (Site Editor access) can read the current skin/style
  * payload — same capability the Site Editor itself already requires.
  *
@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace ThemeSkinSwitcher\RestAPI;
 
-use Meridian\Rest\Route\AbstractRestRoute;
-use Meridian\Rest\Permission\PermissionFactory;
+use Novalis\Rest\Route\AbstractRestRoute;
+use Novalis\Rest\Permission\PermissionFactory;
 use ThemeSkinSwitcher\SkinPackRegistry;
 use ThemeSkinSwitcher\Style\StyleVariationManager;
 use WP_REST_Response;
