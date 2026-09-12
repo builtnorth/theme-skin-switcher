@@ -97,7 +97,7 @@ Use CLI for installs, imports, and automation. It is the supported way to **set*
 
 ## REST API
 
-Read-only endpoint for editor boot data (styles list, switch payloads, active slug). Requires [`novalis/rest`](https://github.com/builtnorth/novalis-rest).
+Read-only endpoint for editor boot data (styles list, switch payloads, active slug). Requires [`novalis/rest-access`](https://github.com/builtnorth/novalis-rest-access).
 
 ```http
 GET /wp-json/theme-skin-switcher/v1/style

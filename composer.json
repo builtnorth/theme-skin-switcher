@@ -13,7 +13,7 @@
 	},
 	"require": {
 		"php": ">=8.1",
-		"novalis/rest": "^1.0"
+		"novalis/rest-access": "^1.0"
 	},
 	"scripts": {
 		"test": "echo 'Theme skin switcher tests not yet configured'"
