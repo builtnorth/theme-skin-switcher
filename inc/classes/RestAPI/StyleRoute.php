@@ -3,7 +3,7 @@
 /**
  * REST: active skin + Site Editor boot data (read-only).
  *
- * Uses novalis/rest's AdminOperationalPermission so an authenticated user with
+ * Uses novalis/rest's AdminPermission so an authenticated user with
  * `edit_theme_options` (Site Editor access) can read the current skin/style
  * payload — same capability the Site Editor itself already requires.
  *
@@ -31,7 +31,7 @@ final class StyleRoute extends AbstractRestRoute
 	public function __construct()
 	{
 		parent::__construct(
-			permissionResolver: PermissionFactory::admin_operational_permission(
+			permissionResolver: PermissionFactory::admin_permission(
 				capability: 'edit_theme_options',
 			),
 			namespace: self::REST_NAMESPACE,
