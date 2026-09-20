@@ -1,11 +1,11 @@
 {
-	"name": "builtnorth/theme-skin-switcher",
+	"name": "builtnorth/polaris-module-theme-skin-switcher",
 	"description": "Design skin engine and Site Editor switcher for WordPress block themes.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"autoload": {
 		"psr-4": {
-			"ThemeSkinSwitcher\\": "inc/classes/"
+			"PolarisModule\\ThemeSkinSwitcher\\": "inc/classes/"
 		},
 		"files": [
 			"inc/functions.php"

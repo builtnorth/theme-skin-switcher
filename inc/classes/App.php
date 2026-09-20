@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace ThemeSkinSwitcher;
+namespace PolarisModule\ThemeSkinSwitcher;
 
-use ThemeSkinSwitcher\Provisioning\StyleProvisioner;
-use ThemeSkinSwitcher\RestAPI\StyleRoute;
-use ThemeSkinSwitcher\Style\StyleEditorIntegration;
-use ThemeSkinSwitcher\Style\StyleVariationManager;
-use ThemeSkinSwitcher\Traits\SingletonTrait;
+use PolarisModule\ThemeSkinSwitcher\Provisioning\StyleProvisioner;
+use PolarisModule\ThemeSkinSwitcher\RestAPI\StyleRoute;
+use PolarisModule\ThemeSkinSwitcher\Style\StyleEditorIntegration;
+use PolarisModule\ThemeSkinSwitcher\Style\StyleVariationManager;
+use PolarisModule\ThemeSkinSwitcher\Traits\SingletonTrait;
 
 defined('ABSPATH') || defined('WP_CLI') || exit;
 

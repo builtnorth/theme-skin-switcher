@@ -7,17 +7,17 @@
  * `edit_theme_options` (Site Editor access) can read the current skin/style
  * payload — same capability the Site Editor itself already requires.
  *
- * @package ThemeSkinSwitcher\RestAPI
+ * @package PolarisModule\ThemeSkinSwitcher\RestAPI
  */
 
 declare(strict_types=1);
 
-namespace ThemeSkinSwitcher\RestAPI;
+namespace PolarisModule\ThemeSkinSwitcher\RestAPI;
 
 use Novalis\Rest\Route\AbstractRestRoute;
 use Novalis\Rest\Permission\PermissionFactory;
-use ThemeSkinSwitcher\SkinPackRegistry;
-use ThemeSkinSwitcher\Style\StyleVariationManager;
+use PolarisModule\ThemeSkinSwitcher\SkinPackRegistry;
+use PolarisModule\ThemeSkinSwitcher\Style\StyleVariationManager;
 use WP_REST_Response;
 use WP_REST_Server;
 

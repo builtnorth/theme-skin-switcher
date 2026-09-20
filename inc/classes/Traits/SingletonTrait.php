@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ThemeSkinSwitcher\Traits;
+namespace PolarisModule\ThemeSkinSwitcher\Traits;
 
 defined('ABSPATH') || defined('WP_CLI') || exit;
 

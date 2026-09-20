@@ -21,13 +21,13 @@ Use it in any theme or child theme that defines a `design-skins/` directory. No 
 ## Installation
 
 ```bash
-composer require builtnorth/theme-skin-switcher
+composer require builtnorth/polaris-module-theme-skin-switcher
 ```
 
 Register the autoloader in your theme, then boot once from `functions.php`:
 
 ```php
-\ThemeSkinSwitcher\App::get_instance()->boot();
+\PolarisModule\ThemeSkinSwitcher\App::get_instance()->boot();
 ```
 
 ### Public assets (editor bundle)
@@ -146,7 +146,7 @@ npm run start    # watch editor assets
 npm run build    # production bundle → build/assets/editor/
 ```
 
-PHP classes live under `inc/classes/` with namespace `ThemeSkinSwitcher\`.
+PHP classes live under `inc/classes/` with namespace `PolarisModule\ThemeSkinSwitcher\`.
 
 ## License
 

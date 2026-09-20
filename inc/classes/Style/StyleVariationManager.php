@@ -24,19 +24,19 @@
  * Deprecated aliases: {@see 'compass_waas_skin_client_switch_payload'},
  * {@see 'compass_waas_skin_client_custom_theme_properties'}.
  *
- * @package ThemeSkinSwitcher\Style
+ * @package PolarisModule\ThemeSkinSwitcher\Style
  * @since 1.0.0
  */
 
 declare(strict_types=1);
 
-namespace ThemeSkinSwitcher\Style;
+namespace PolarisModule\ThemeSkinSwitcher\Style;
 
 use Polaris\Base\Container;
 use Polaris\EditorExperience\PatternConfig;
 use Polaris\EditorExperience\SectionDividerConfig;
-use ThemeSkinSwitcher\SkinPackRegistry;
-use ThemeSkinSwitcher\Traits\SingletonTrait;
+use PolarisModule\ThemeSkinSwitcher\SkinPackRegistry;
+use PolarisModule\ThemeSkinSwitcher\Traits\SingletonTrait;
 
 // Don't load directly.
 defined('ABSPATH') || defined('WP_CLI') || exit;
