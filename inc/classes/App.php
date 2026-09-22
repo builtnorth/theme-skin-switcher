@@ -19,8 +19,6 @@ class App
 {
 	use SingletonTrait;
 
-	private const VERSION = '1.0.0';
-
 	public function boot(): void
 	{
 		$this->define_constants();
@@ -34,7 +32,7 @@ class App
 	private function define_constants(): void
 	{
 		if (! defined('THEME_SKIN_SWITCHER_VERSION')) {
-			define('THEME_SKIN_SWITCHER_VERSION', self::VERSION);
+			define('THEME_SKIN_SWITCHER_VERSION', self::version());
 		}
 
 		if (! defined('THEME_SKIN_SWITCHER_PATH')) {
@@ -44,6 +42,30 @@ class App
 		if (! defined('THEME_SKIN_SWITCHER_URL')) {
 			define('THEME_SKIN_SWITCHER_URL', self::package_url());
 		}
+	}
+
+	/**
+	 * Package version, read from version.php at the package root.
+	 *
+	 * Single source of truth: version.php is also what package-loader compares
+	 * across bundled copies, and what the release workflow stamps. A duplicate
+	 * class constant here went stale against the release tag once already, and
+	 * this value is the asset cache-buster — so a stale copy means browsers
+	 * keep serving superseded CSS and JS.
+	 */
+	public static function version(): string
+	{
+		static $version = null;
+
+		if ($version === null) {
+			// Resolved from this file rather than via package_path(), which
+			// needs WordPress loaded for trailingslashit() — reading a version
+			// string should not require a booted WP.
+			$file    = dirname(__DIR__, 2) . '/version.php';
+			$version = is_readable($file) ? (string) require $file : '0.0.0';
+		}
+
+		return $version;
 	}
 
 	/**
