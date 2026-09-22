@@ -29,10 +29,5 @@ if (class_exists(Registry::class, false)) {
 		'version' => (string) require dirname(__DIR__) . '/version.php',
 		'root'    => dirname(__DIR__),
 		'psr4'    => ['PolarisModule\\ThemeSkinSwitcher\\' => 'inc/classes/'],
-		// Deliberately no boot callable. The consuming theme decides whether
-		// skins are active and calls App::get_instance()->boot() itself, after
-		// its own setup — booting here would register hooks for a theme that
-		// never asked for them.
-		'boot'    => null,
 	]);
 }
