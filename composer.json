@@ -8,8 +8,8 @@
 			"PolarisModule\\ThemeSkinSwitcher\\": "inc/classes/"
 		},
 		"files": [
-			"bootstrap/register.php",
-			"inc/functions.php"
+			"register.php",
+			"inc/public-api.php"
 		]
 	},
 	"require": {
