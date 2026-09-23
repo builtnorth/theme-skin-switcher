@@ -13,9 +13,20 @@ use PolarisModule\ThemeSkinSwitcher\Traits\SingletonTrait;
 defined('ABSPATH') || defined('WP_CLI') || exit;
 
 /**
- * Theme Skin Switcher application bootstrap.
+ * SkinSwitcher: single entry point for the package.
+ *
+ * Named for what it is rather than for its role, matching
+ * {@see \Novalis\StructuredData\Graph} and {@see \Novalis\Portability\Portability}.
+ * `App` is the name every consuming theme and plugin uses for its own root class, so
+ * importing this package's entry point meant either an alias or a fully-qualified
+ * reference at the call site — restating the package name the namespace had already
+ * supplied.
+ *
+ * Boot it from a theme's `functions.php` with `SkinSwitcher::get_instance()->boot()`,
+ * which registers the `after_setup_theme` chain that resolves the active theme's skin
+ * pack and wires up the Site Editor switcher.
  */
-class App
+class SkinSwitcher
 {
 	use SingletonTrait;
 

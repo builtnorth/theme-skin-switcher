@@ -27,7 +27,7 @@ composer require builtnorth/polaris-module-theme-skin-switcher
 Register the autoloader in your theme, then boot once from `functions.php`:
 
 ```php
-\PolarisModule\ThemeSkinSwitcher\App::get_instance()->boot();
+\PolarisModule\ThemeSkinSwitcher\SkinSwitcher::get_instance()->boot();
 ```
 
 ### Public assets (editor bundle)
