@@ -16,7 +16,7 @@
 
 declare(strict_types=1);
 
-use Novalis\PackageLoader\Registry;
+use Navas\PackageLoader\Registry;
 
 // A consumer could vendor this package without the coordinator (a stale
 // composer.lock, a hand-assembled vendor tree). Falling back to plain Composer
