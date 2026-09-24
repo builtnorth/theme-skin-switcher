@@ -135,8 +135,21 @@ class SkinSwitcher
 			return content_url(substr($path, strlen($content_dir)));
 		}
 
-		// Dev monorepo: wp-content/packages/theme-skin-switcher → composer_packages.
-		return trailingslashit(content_url('packages/theme-skin-switcher'));
+		$abspath = wp_normalize_path(ABSPATH);
+
+		if (str_starts_with($path, $abspath)) {
+			return site_url(substr($path, strlen($abspath)));
+		}
+
+		// WordPress in a subdirectory with the package beside it (e.g. the dev
+		// monorepo's composer_packages/): map from the web root above ABSPATH.
+		$parent = trailingslashit(dirname($abspath));
+
+		if (str_starts_with($path, $parent)) {
+			return trailingslashit(dirname(site_url())) . substr($path, strlen($parent));
+		}
+
+		return '';
 	}
 
 	public function register_theme_json_merge_early(): void
@@ -172,7 +185,7 @@ class SkinSwitcher
 	{
 		$asset_path = THEME_SKIN_SWITCHER_PATH . 'build/assets/editor/editor.asset.php';
 
-		if (! is_readable($asset_path)) {
+		if (! is_readable($asset_path) || THEME_SKIN_SWITCHER_URL === '') {
 			return;
 		}
 
