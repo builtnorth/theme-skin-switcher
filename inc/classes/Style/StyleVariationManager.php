@@ -467,12 +467,17 @@ class StyleVariationManager
 	}
 
 	/**
-	 * Base theme.json as WP_Theme_JSON_Data (no active-skin filters) for per-slug client previews.
+	 * Base theme.json data (decoded array; no active-skin filters) for per-slug client previews.
+	 *
+	 * @var array<string, mixed>|null
 	 */
-	private static ?\WP_Theme_JSON_Data $base_theme_json_data_for_client = null;
+	private static ?array $base_theme_json_for_client = null;
 
 	/**
 	 * Theme.json from disk — avoids double-merging the active skin from {@see merge_active_skin_theme_json()}.
+	 *
+	 * Returns a new object per call: WP_Theme_JSON_Data::update_with() merges into
+	 * the object itself, so a shared instance would carry one skin's tokens into the next.
 	 */
 	private static function get_base_theme_json_data_for_client(): ?\WP_Theme_JSON_Data
 	{
@@ -480,31 +485,29 @@ class StyleVariationManager
 			return null;
 		}
 
-		if (self::$base_theme_json_data_for_client instanceof \WP_Theme_JSON_Data) {
-			return self::$base_theme_json_data_for_client;
+		if (self::$base_theme_json_for_client === null) {
+			$path = get_template_directory() . '/theme.json';
+
+			if (! is_readable($path)) {
+				return null;
+			}
+
+			$raw = file_get_contents($path);
+
+			if (! is_string($raw) || $raw === '') {
+				return null;
+			}
+
+			$data = json_decode($raw, true);
+
+			if (! is_array($data)) {
+				return null;
+			}
+
+			self::$base_theme_json_for_client = $data;
 		}
 
-		$path = get_template_directory() . '/theme.json';
-
-		if (! is_readable($path)) {
-			return null;
-		}
-
-		$raw = file_get_contents($path);
-
-		if (! is_string($raw) || $raw === '') {
-			return null;
-		}
-
-		$data = json_decode($raw, true);
-
-		if (! is_array($data)) {
-			return null;
-		}
-
-		self::$base_theme_json_data_for_client = new \WP_Theme_JSON_Data($data, 'theme');
-
-		return self::$base_theme_json_data_for_client;
+		return new \WP_Theme_JSON_Data(self::$base_theme_json_for_client, 'theme');
 	}
 
 	/**
