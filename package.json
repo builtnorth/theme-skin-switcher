@@ -6,7 +6,8 @@
 	"scripts": {
 		"build": "wp-scripts build",
 		"start": "wp-scripts start",
-		"start:quiet": "wp-scripts start --webpack-stats=minimal"
+		"start:quiet": "wp-scripts start --webpack-stats=minimal",
+		"test:unit": "wp-scripts test-unit-js"
 	},
 	"devDependencies": {
 		"webpack-remove-empty-scripts": "^1.1.1"

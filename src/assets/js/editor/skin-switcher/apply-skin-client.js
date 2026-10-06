@@ -261,7 +261,7 @@ function applyVariationThemeJsonCss(doc, bodyClass, css) {
 	head.appendChild(el);
 }
 
-function mergeEditorExperience(patch) {
+export function mergeEditorExperience(patch) {
 	if (!patch || typeof patch !== 'object') {
 		return;
 	}
@@ -278,22 +278,9 @@ function mergeEditorExperience(patch) {
 	};
 
 	if (patch.patterns) {
-		merged.patterns = {
-			...(current.patterns || {}),
-			...patch.patterns,
-		};
-
-		if (Object.prototype.hasOwnProperty.call(patch.patterns, 'available_patterns')) {
-			merged.patterns.available_patterns = patch.patterns.available_patterns;
-		}
-
-		if (Object.prototype.hasOwnProperty.call(patch.patterns, 'pattern_directory')) {
-			merged.patterns.pattern_directory = patch.patterns.pattern_directory;
-		}
-
-		if (Object.prototype.hasOwnProperty.call(patch.patterns, 'pattern_urls')) {
-			merged.patterns.pattern_urls = patch.patterns.pattern_urls;
-		}
+		// The payload holds the skin's full pattern config (theme baseline + skin), so it
+		// replaces the previous skin's rather than merging over it.
+		merged.patterns = patch.patterns;
 	} else {
 		merged.patterns = current.patterns;
 	}
