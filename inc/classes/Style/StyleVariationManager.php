@@ -436,7 +436,8 @@ class StyleVariationManager
 				continue;
 			}
 
-			$segment = is_int($key) ? (string) $key : $key;
+			// Same variable names as core's WP_Theme_JSON::flatten_tree() (lineHeight → line-height).
+			$segment = str_replace('/', '-', strtolower(_wp_to_kebab_case((string) $key)));
 
 			if (is_array($value)) {
 				$out = array_merge(
