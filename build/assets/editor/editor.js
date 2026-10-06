@@ -61,11 +61,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _useActiveSkin__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./useActiveSkin */ "./src/assets/js/editor/skin-switcher/useActiveSkin.js");
 /* harmony import */ var _useApplySkin__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./useApplySkin */ "./src/assets/js/editor/skin-switcher/useApplySkin.js");
 /* harmony import */ var _SkinPreviewImage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SkinPreviewImage */ "./src/assets/js/editor/skin-switcher/SkinPreviewImage.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _skin_select_options__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./skin-select-options */ "./src/assets/js/editor/skin-switcher/skin-select-options.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__);
 /**
  * Design skin field on the Global Styles home screen.
  */
+
 
 
 
@@ -90,14 +92,14 @@ function SkinSwitcherRootCard() {
       }
     }
   });
-  const selectOptions = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => styles.map(style => ({
+  const selectOptions = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => (0,_skin_select_options__WEBPACK_IMPORTED_MODULE_6__.withNoSkinPlaceholder)(styles.map(style => ({
     key: style.slug,
     name: style.title,
-    icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_SkinPreviewImage__WEBPACK_IMPORTED_MODULE_5__["default"], {
+    icon: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_SkinPreviewImage__WEBPACK_IMPORTED_MODULE_5__["default"], {
       style: style
     }),
     className: `theme-skin-switcher__option theme-skin-switcher__option--${style.slug}`
-  })), [styles]);
+  })), activeSlug, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Choose a design skin', 'theme-skin-switcher')), [styles, activeSlug]);
   const selectedOption = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
     if (!selectOptions.length) {
       return undefined;
@@ -112,9 +114,9 @@ function SkinSwitcherRootCard() {
     }
     applySkin(selectedItem.key);
   };
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
     className: "theme-skin-switcher__field",
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.CustomSelectControl, {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.CustomSelectControl, {
       __next40pxDefaultSize: true,
       className: "theme-skin-switcher__select",
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Design skin', 'theme-skin-switcher'),
@@ -124,7 +126,7 @@ function SkinSwitcherRootCard() {
       onChange: handleChange,
       disabled: isLoading || !selectOptions.length,
       showSelectedHint: true
-    }), error && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, {
+    }), error && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalText, {
       as: "p",
       className: "theme-skin-switcher__error",
       role: "alert",
@@ -305,6 +307,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   applyToDocuments: () => (/* binding */ applyToDocuments),
 /* harmony export */   getLastAppliedSkinSlug: () => (/* binding */ getLastAppliedSkinSlug),
 /* harmony export */   isSkinPersistencePaused: () => (/* binding */ isSkinPersistencePaused),
+/* harmony export */   mergeEditorExperience: () => (/* binding */ mergeEditorExperience),
 /* harmony export */   reapplyActiveSkinToDocuments: () => (/* binding */ reapplyActiveSkinToDocuments)
 /* harmony export */ });
 /* harmony import */ var _boot_data__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./boot-data */ "./src/assets/js/editor/skin-switcher/boot-data.js");
@@ -536,19 +539,9 @@ function mergeEditorExperience(patch) {
     active_style: patch.active_style || current.active_style
   };
   if (patch.patterns) {
-    merged.patterns = {
-      ...(current.patterns || {}),
-      ...patch.patterns
-    };
-    if (Object.prototype.hasOwnProperty.call(patch.patterns, 'available_patterns')) {
-      merged.patterns.available_patterns = patch.patterns.available_patterns;
-    }
-    if (Object.prototype.hasOwnProperty.call(patch.patterns, 'pattern_directory')) {
-      merged.patterns.pattern_directory = patch.patterns.pattern_directory;
-    }
-    if (Object.prototype.hasOwnProperty.call(patch.patterns, 'pattern_urls')) {
-      merged.patterns.pattern_urls = patch.patterns.pattern_urls;
-    }
+    // The payload holds the skin's full pattern config (theme baseline + skin), so it
+    // replaces the previous skin's rather than merging over it.
+    merged.patterns = patch.patterns;
   } else {
     merged.patterns = current.patterns;
   }
@@ -950,6 +943,40 @@ function initSkinPersistence() {
     subtree: true
   });
   window.setTimeout(reapplyActiveSkin, 500);
+}
+
+/***/ },
+
+/***/ "./src/assets/js/editor/skin-switcher/skin-select-options.js"
+/*!*******************************************************************!*\
+  !*** ./src/assets/js/editor/skin-switcher/skin-select-options.js ***!
+  \*******************************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   withNoSkinPlaceholder: () => (/* binding */ withNoSkinPlaceholder)
+/* harmony export */ });
+/**
+ * Options for the design skin select.
+ *
+ * With no active skin (or one that no longer exists), a placeholder leads the
+ * list. CustomSelectControl only reports a changed selection, so showing the
+ * first skin as selected would make it impossible to choose.
+ *
+ * @param {Array<{key: string}>} options     Skin options.
+ * @param {string}               activeSlug  Active skin slug ('' when none).
+ * @param {string}               placeholder Placeholder label.
+ * @return {Array<{key: string}>} Options to render.
+ */
+function withNoSkinPlaceholder(options, activeSlug, placeholder) {
+  if (!options.length || options.some(option => option.key === activeSlug)) {
+    return options;
+  }
+  return [{
+    key: '',
+    name: placeholder
+  }, ...options];
 }
 
 /***/ },
