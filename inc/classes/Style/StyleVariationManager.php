@@ -474,7 +474,7 @@ class StyleVariationManager
 	private static ?array $base_theme_json_for_client = null;
 
 	/**
-	 * Theme.json from disk — avoids double-merging the active skin from {@see merge_active_skin_theme_json()}.
+	 * Theme.json from disk (parent, then child) — avoids double-merging the active skin from {@see merge_active_skin_theme_json()}.
 	 *
 	 * Returns a new object per call: WP_Theme_JSON_Data::update_with() merges into
 	 * the object itself, so a shared instance would carry one skin's tokens into the next.
@@ -486,28 +486,51 @@ class StyleVariationManager
 		}
 
 		if (self::$base_theme_json_for_client === null) {
-			$path = get_template_directory() . '/theme.json';
+			$data = self::read_theme_json_file(get_template_directory());
 
-			if (! is_readable($path)) {
+			if ($data === null) {
 				return null;
 			}
 
-			$raw = file_get_contents($path);
+			// A child theme's theme.json merges over the parent's, as core's resolver does.
+			if (get_stylesheet_directory() !== get_template_directory() && class_exists('WP_Theme_JSON')) {
+				$child = self::read_theme_json_file(get_stylesheet_directory());
 
-			if (! is_string($raw) || $raw === '') {
-				return null;
-			}
-
-			$data = json_decode($raw, true);
-
-			if (! is_array($data)) {
-				return null;
+				if ($child !== null) {
+					$parent = new \WP_Theme_JSON($data);
+					$parent->merge(new \WP_Theme_JSON($child));
+					$data = $parent->get_raw_data();
+				}
 			}
 
 			self::$base_theme_json_for_client = $data;
 		}
 
 		return new \WP_Theme_JSON_Data(self::$base_theme_json_for_client, 'theme');
+	}
+
+	/**
+	 * Decoded theme.json from a theme directory, or null when missing or invalid.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private static function read_theme_json_file(string $directory): ?array
+	{
+		$path = $directory . '/theme.json';
+
+		if (! is_readable($path)) {
+			return null;
+		}
+
+		$raw = file_get_contents($path);
+
+		if (! is_string($raw) || $raw === '') {
+			return null;
+		}
+
+		$data = json_decode($raw, true);
+
+		return is_array($data) ? $data : null;
 	}
 
 	/**
