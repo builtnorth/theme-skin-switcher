@@ -3,7 +3,7 @@
 /**
  * REST: active skin + Site Editor boot data (read-only).
  *
- * Uses navas/rest's AdminPermission so an authenticated user with
+ * Uses navas/rest-access's AdminPermission so an authenticated user with
  * `edit_theme_options` (Site Editor access) can read the current skin/style
  * payload — same capability the Site Editor itself already requires.
  *

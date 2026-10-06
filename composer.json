@@ -17,6 +17,9 @@
 		"navas/package-loader": "^0.1",
 		"navas/rest-access": "^0.1"
 	},
+	"suggest": {
+		"builtnorth/polaris": "Section pattern and divider pickers follow the active skin (polaris_editor_experience_data)."
+	},
 	"scripts": {
 		"test": "echo 'Theme skin switcher tests not yet configured'"
 	},
