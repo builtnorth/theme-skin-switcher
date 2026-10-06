@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import useActiveSkin from './useActiveSkin';
 import useApplySkin from './useApplySkin';
 import SkinPreviewImage from './SkinPreviewImage';
+import { withNoSkinPlaceholder } from './skin-select-options';
 
 export default function SkinSwitcherRootCard() {
 	const { activeSlug, styles, isLoading, setActiveSlug } = useActiveSkin();
@@ -20,13 +21,17 @@ export default function SkinSwitcherRootCard() {
 
 	const selectOptions = useMemo(
 		() =>
-			styles.map((style) => ({
-				key: style.slug,
-				name: style.title,
-				icon: <SkinPreviewImage style={style} />,
-				className: `theme-skin-switcher__option theme-skin-switcher__option--${style.slug}`,
-			})),
-		[styles]
+			withNoSkinPlaceholder(
+				styles.map((style) => ({
+					key: style.slug,
+					name: style.title,
+					icon: <SkinPreviewImage style={style} />,
+					className: `theme-skin-switcher__option theme-skin-switcher__option--${style.slug}`,
+				})),
+				activeSlug,
+				__('Choose a design skin', 'theme-skin-switcher')
+			),
+		[styles, activeSlug]
 	);
 
 	const selectedOption = useMemo(() => {
