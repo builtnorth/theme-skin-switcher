@@ -136,7 +136,6 @@ class StyleVariationManager
 		self::$theme_json_hooks_registered = true;
 
 		add_filter('wp_theme_json_data_theme', [$this, 'merge_active_skin_theme_json'], 20);
-		add_filter('wp_theme_json_data_user', [$this, 'merge_active_skin_user_theme_json'], 999);
 	}
 
 	/**
@@ -160,9 +159,6 @@ class StyleVariationManager
 
 		add_filter('theme_skin_switcher_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
 		add_filter('polaris_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
-
-		// Site Editor: user entity comes from REST (raw CPT), not WP_Theme_JSON_Resolver::get_user_data().
-		add_filter('rest_prepare_wp_global_styles', [$this, 'merge_active_skin_into_rest_global_styles'], 10, 3);
 
 		add_filter('theme_skin_switcher_section_pattern_base_directories', [$this, 'filter_section_pattern_base_directories'], 10, 2);
 		add_filter('polaris_section_pattern_base_directories', [$this, 'filter_section_pattern_base_directories'], 10, 2);
@@ -273,21 +269,7 @@ class StyleVariationManager
 	}
 
 	/**
-	 * Re-apply the active skin on top of the user global-styles origin.
-	 *
-	 * Without this, values saved in the wp_global_styles post (e.g. prior theme tokens)
-	 * override the theme layer and keep rounded corners after switching to Slab.
-	 *
-	 * @param \WP_Theme_JSON_Data $user_json User origin theme.json object.
-	 * @return \WP_Theme_JSON_Data
-	 */
-	public function merge_active_skin_user_theme_json($user_json)
-	{
-		return $this->apply_active_skin_to_theme_json_data($user_json);
-	}
-
-	/**
-	 * @param \WP_Theme_JSON_Data|object $data Theme or user origin instance.
+	 * @param \WP_Theme_JSON_Data|object $data Theme origin instance.
 	 * @return \WP_Theme_JSON_Data|object
 	 */
 	private function apply_active_skin_to_theme_json_data($data)
@@ -309,85 +291,6 @@ class StyleVariationManager
 		}
 
 		return $data->update_with($merge);
-	}
-
-	/**
-	 * Patch global-styles REST responses so they match theme.json merges used on the front and in get_block_editor_settings().
-	 *
-	 * prepare_item_for_response() reads post_content directly, so {@see 'wp_theme_json_data_user'} never runs.
-	 * The Site Editor preloads this endpoint and merges it with theme data in JS; without this, canvas styles drift.
-	 *
-	 * @param \WP_REST_Response $response Response.
-	 * @param \WP_Post         $post     Global styles post.
-	 * @param \WP_REST_Request $request  Request.
-	 * @return \WP_REST_Response
-	 */
-	public function merge_active_skin_into_rest_global_styles(\WP_REST_Response $response, \WP_Post $post, \WP_REST_Request $request)
-	{
-		unset($request);
-
-		if ('wp_global_styles' !== $post->post_type) {
-			return $response;
-		}
-
-		$stored = json_decode((string) $post->post_content, true);
-
-		if (! is_array($stored) || empty($stored['isGlobalStylesUserThemeJSON'])) {
-			return $response;
-		}
-
-		$slug = $this->get_active_slug();
-
-		if ($slug === '' || ! self::is_registered_skin($slug)) {
-			return $response;
-		}
-
-		$skin = self::get_skin_variation_merge_array($slug);
-
-		if (null === $skin || ! class_exists('WP_Theme_JSON_Data') || ! class_exists('WP_Theme_JSON')) {
-			return $response;
-		}
-
-		$data = $response->get_data();
-
-		if (! is_array($data)) {
-			return $response;
-		}
-
-		$settings = isset($data['settings']) ? json_decode(wp_json_encode($data['settings']), true) : [];
-		$styles   = isset($data['styles']) ? json_decode(wp_json_encode($data['styles']), true) : [];
-
-		if (! is_array($settings)) {
-			$settings = [];
-		}
-
-		if (! is_array($styles)) {
-			$styles = [];
-		}
-
-		$payload = new \WP_Theme_JSON_Data(
-			[
-				'version'  => \WP_Theme_JSON::LATEST_SCHEMA,
-				'settings' => $settings,
-				'styles'   => $styles,
-			],
-			'custom'
-		);
-
-		$payload->update_with($skin);
-		$merged = $payload->get_data();
-
-		if (isset($merged['settings'])) {
-			$data['settings'] = $merged['settings'];
-		}
-
-		if (array_key_exists('styles', $merged)) {
-			$data['styles'] = $merged['styles'];
-		}
-
-		$response->set_data($data);
-
-		return $response;
 	}
 
 	/**
