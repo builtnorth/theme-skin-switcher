@@ -1610,6 +1610,22 @@ class StyleVariationManager
 			$payloads[$slug] = self::get_client_switch_payload($slug);
 		}
 
+		// The canvas keeps the load-time skin's tokens on :root until they are overridden,
+		// so each payload resets ('initial') the tokens only other skins define.
+		$all_keys = [];
+
+		foreach ($payloads as $payload) {
+			if (is_array($payload['customThemeProperties'] ?? null)) {
+				$all_keys += array_fill_keys(array_keys($payload['customThemeProperties']), 'initial');
+			}
+		}
+
+		foreach ($payloads as $slug => $payload) {
+			if (is_array($payload['customThemeProperties'] ?? null)) {
+				$payloads[$slug]['customThemeProperties'] += $all_keys;
+			}
+		}
+
 		return $payloads;
 	}
 
