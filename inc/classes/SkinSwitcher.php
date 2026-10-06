@@ -129,7 +129,7 @@ class SkinSwitcher
 			}
 		}
 
-		$content_dir = wp_normalize_path(WP_CONTENT_DIR);
+		$content_dir = trailingslashit(wp_normalize_path(WP_CONTENT_DIR));
 
 		if (str_starts_with($path, $content_dir)) {
 			return content_url(substr($path, strlen($content_dir)));
@@ -143,9 +143,11 @@ class SkinSwitcher
 
 		// WordPress in a subdirectory with the package beside it (e.g. the dev
 		// monorepo's composer_packages/): map from the web root above ABSPATH.
-		$parent = trailingslashit(dirname($abspath));
+		// A root install has no web root above ABSPATH, so nothing beside it is served.
+		$parent      = trailingslashit(dirname($abspath));
+		$site_subdir = trim((string) wp_parse_url(site_url(), PHP_URL_PATH), '/');
 
-		if (str_starts_with($path, $parent)) {
+		if ($site_subdir !== '' && str_starts_with($path, $parent)) {
 			return trailingslashit(dirname(site_url())) . substr($path, strlen($parent));
 		}
 
