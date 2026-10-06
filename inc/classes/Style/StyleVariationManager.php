@@ -193,7 +193,7 @@ class StyleVariationManager
 			return $slug;
 		}
 
-		$legacy = (string) get_theme_mod(self::LEGACY_THEME_MOD_KEY, '');
+		$legacy = sanitize_key((string) get_theme_mod(self::LEGACY_THEME_MOD_KEY, ''));
 
 		if ($legacy === '') {
 			return '';
