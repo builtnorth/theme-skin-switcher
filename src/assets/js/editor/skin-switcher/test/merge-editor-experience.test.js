@@ -13,7 +13,7 @@ const flowPatterns = {
 };
 
 beforeEach(() => {
-	window.polaris_localize = {
+	window.kitaris_localize = {
 		blocks: {
 			editor_experience: {
 				patterns: flowPatterns,
@@ -30,11 +30,11 @@ test('a skin without section patterns drops the previous skin pattern config', (
 		active_style: { slug: 'arch' },
 	});
 
-	expect(window.polaris_localize.blocks.editor_experience.patterns).toEqual({
+	expect(window.kitaris_localize.blocks.editor_experience.patterns).toEqual({
 		enabled: true,
 		available_patterns: [],
 	});
-	expect(window.polaris_localize.blocks.editor_experience.active_style).toEqual({ slug: 'arch' });
+	expect(window.kitaris_localize.blocks.editor_experience.active_style).toEqual({ slug: 'arch' });
 });
 
 test('a skin with section patterns gets exactly its own pattern config', () => {
@@ -47,11 +47,11 @@ test('a skin with section patterns gets exactly its own pattern config', () => {
 
 	mergeEditorExperience({ patterns: craftsman });
 
-	expect(window.polaris_localize.blocks.editor_experience.patterns).toEqual(craftsman);
+	expect(window.kitaris_localize.blocks.editor_experience.patterns).toEqual(craftsman);
 });
 
 test('a patch without patterns keeps the current patterns', () => {
 	mergeEditorExperience({ active_style: { slug: 'arch' } });
 
-	expect(window.polaris_localize.blocks.editor_experience.patterns).toEqual(flowPatterns);
+	expect(window.kitaris_localize.blocks.editor_experience.patterns).toEqual(flowPatterns);
 });

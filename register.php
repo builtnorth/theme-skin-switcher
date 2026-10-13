@@ -11,7 +11,7 @@
  * registration file reachable through its own package's namespace prefix
  * would make the coordinator resolve a class name back onto this file.
  *
- * @package PolarisModule\ThemeSkinSwitcher
+ * @package KitarisModule\ThemeSkinSwitcher
  */
 
 declare(strict_types=1);
@@ -25,9 +25,9 @@ use Siratik\PackageLoader\Registry;
 // files entry, so if it is not already declared no autoloader can produce it.
 if (class_exists(Registry::class, false)) {
 	Registry::instance()->register([
-		'package' => 'builtnorth/polaris-module-theme-skin-switcher',
+		'package' => 'builtnorth/kitaris-module-theme-skin-switcher',
 		'version' => (string) require __DIR__ . '/version.php',
 		'root'    => __DIR__,
-		'psr4'    => ['PolarisModule\\ThemeSkinSwitcher\\' => 'inc/classes/'],
+		'psr4'    => ['KitarisModule\\ThemeSkinSwitcher\\' => 'inc/classes/'],
 	]);
 }

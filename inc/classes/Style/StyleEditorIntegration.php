@@ -3,16 +3,16 @@
 /**
  * Site Editor data for the theme skin switcher (script loads via editor bundle).
  *
- * @package PolarisModule\ThemeSkinSwitcher\Style
+ * @package KitarisModule\ThemeSkinSwitcher\Style
  * @since 1.0.0
  */
 
 declare(strict_types=1);
 
-namespace PolarisModule\ThemeSkinSwitcher\Style;
+namespace KitarisModule\ThemeSkinSwitcher\Style;
 
-use PolarisModule\ThemeSkinSwitcher\RestAPI\StyleRoute;
-use PolarisModule\ThemeSkinSwitcher\SkinPackRegistry;
+use KitarisModule\ThemeSkinSwitcher\RestAPI\StyleRoute;
+use KitarisModule\ThemeSkinSwitcher\SkinPackRegistry;
 
 // Don't load directly.
 defined('ABSPATH') || defined('WP_CLI') || exit;

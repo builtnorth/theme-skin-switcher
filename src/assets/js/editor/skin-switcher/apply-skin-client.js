@@ -266,10 +266,10 @@ export function mergeEditorExperience(patch) {
 		return;
 	}
 
-	window.polaris_localize = window.polaris_localize || {};
-	window.polaris_localize.blocks = window.polaris_localize.blocks || {};
+	window.kitaris_localize = window.kitaris_localize || {};
+	window.kitaris_localize.blocks = window.kitaris_localize.blocks || {};
 
-	const current = window.polaris_localize.blocks.editor_experience || {};
+	const current = window.kitaris_localize.blocks.editor_experience || {};
 
 	const merged = {
 		...current,
@@ -299,7 +299,7 @@ export function mergeEditorExperience(patch) {
 		merged.section_divider = current.section_divider;
 	}
 
-	window.polaris_localize.blocks.editor_experience = merged;
+	window.kitaris_localize.blocks.editor_experience = merged;
 }
 
 /**

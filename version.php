@@ -7,7 +7,7 @@
  * cannot live behind a class constant. Written by the release workflow's
  * version-stamping step.
  *
- * @package PolarisModule\ThemeSkinSwitcher
+ * @package KitarisModule\ThemeSkinSwitcher
  */
 
 return '1.0.1';

@@ -24,19 +24,19 @@
  * Deprecated aliases: {@see 'compass_waas_skin_client_switch_payload'},
  * {@see 'compass_waas_skin_client_custom_theme_properties'}.
  *
- * @package PolarisModule\ThemeSkinSwitcher\Style
+ * @package KitarisModule\ThemeSkinSwitcher\Style
  * @since 1.0.0
  */
 
 declare(strict_types=1);
 
-namespace PolarisModule\ThemeSkinSwitcher\Style;
+namespace KitarisModule\ThemeSkinSwitcher\Style;
 
-use Polaris\Base\Container;
-use Polaris\EditorExperience\PatternConfig;
-use Polaris\EditorExperience\SectionDividerConfig;
-use PolarisModule\ThemeSkinSwitcher\SkinPackRegistry;
-use PolarisModule\ThemeSkinSwitcher\Traits\SingletonTrait;
+use Kitaris\Base\Container;
+use Kitaris\EditorExperience\PatternConfig;
+use Kitaris\EditorExperience\SectionDividerConfig;
+use KitarisModule\ThemeSkinSwitcher\SkinPackRegistry;
+use KitarisModule\ThemeSkinSwitcher\Traits\SingletonTrait;
 
 // Don't load directly.
 defined('ABSPATH') || defined('WP_CLI') || exit;
@@ -158,10 +158,10 @@ class StyleVariationManager
 		add_action('enqueue_block_editor_assets', [$this, 'enqueue_skin_for_site_editor'], 20);
 
 		add_filter('theme_skin_switcher_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
-		add_filter('polaris_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
+		add_filter('kitaris_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
 
 		add_filter('theme_skin_switcher_section_pattern_base_directories', [$this, 'filter_section_pattern_base_directories'], 10, 2);
-		add_filter('polaris_section_pattern_base_directories', [$this, 'filter_section_pattern_base_directories'], 10, 2);
+		add_filter('kitaris_section_pattern_base_directories', [$this, 'filter_section_pattern_base_directories'], 10, 2);
 	}
 
 	/**
@@ -1360,7 +1360,7 @@ class StyleVariationManager
 	 * Inject style-specific overrides into editor experience data.
 	 *
 	 * Hooked into {@see 'theme_skin_switcher_editor_experience_data'} and, when
-	 * present, {@see 'polaris_editor_experience_data'} for backward compatibility.
+	 * present, {@see 'kitaris_editor_experience_data'} for backward compatibility.
 	 *
 	 * @param array $editor_experience Assembled editor experience config.
 	 * @return array Modified editor experience config.

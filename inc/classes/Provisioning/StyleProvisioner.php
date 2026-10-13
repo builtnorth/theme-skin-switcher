@@ -12,18 +12,18 @@
  *   lando wp theme-skin-switcher list-styles
  *   lando wp theme-skin-switcher get-style
  *
- * REST API (read-only): see {@see \PolarisModule\ThemeSkinSwitcher\RestAPI\StyleRoute}.
+ * REST API (read-only): see {@see \KitarisModule\ThemeSkinSwitcher\RestAPI\StyleRoute}.
  *   GET /wp-json/theme-skin-switcher/v1/style
  *
- * @package PolarisModule\ThemeSkinSwitcher\Provisioning
+ * @package KitarisModule\ThemeSkinSwitcher\Provisioning
  * @since 1.0.0
  */
 
 declare(strict_types=1);
 
-namespace PolarisModule\ThemeSkinSwitcher\Provisioning;
+namespace KitarisModule\ThemeSkinSwitcher\Provisioning;
 
-use PolarisModule\ThemeSkinSwitcher\Style\StyleVariationManager;
+use KitarisModule\ThemeSkinSwitcher\Style\StyleVariationManager;
 
 // Don't load directly.
 defined('ABSPATH') || defined('WP_CLI') || exit;

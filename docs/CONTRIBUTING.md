@@ -1,4 +1,4 @@
-# Contributing to Polaris Module Theme Skin Switcher
+# Contributing to Kitaris Module Theme Skin Switcher
 
 Thanks for your interest in improving this package.
 

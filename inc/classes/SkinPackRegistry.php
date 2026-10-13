@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PolarisModule\ThemeSkinSwitcher;
+namespace KitarisModule\ThemeSkinSwitcher;
 
-use PolarisModule\ThemeSkinSwitcher\Traits\SingletonTrait;
+use KitarisModule\ThemeSkinSwitcher\Traits\SingletonTrait;
 
 defined('ABSPATH') || defined('WP_CLI') || exit;
 

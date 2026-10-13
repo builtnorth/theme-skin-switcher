@@ -3,12 +3,12 @@
 /**
  * Theme Skin Switcher helper functions
  *
- * @package PolarisModule\ThemeSkinSwitcher
+ * @package KitarisModule\ThemeSkinSwitcher
  */
 
 declare(strict_types=1);
 
-use PolarisModule\ThemeSkinSwitcher\Style\StyleVariationManager;
+use KitarisModule\ThemeSkinSwitcher\Style\StyleVariationManager;
 
 if (! function_exists('theme_skin_switcher_append_pattern_asset_urls')) {
 	/**
