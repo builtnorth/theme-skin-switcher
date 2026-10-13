@@ -21,7 +21,7 @@ Use it in any theme or child theme that defines a `design-skins/` directory. No 
 ## Installation
 
 ```bash
-composer require builtnorth/kitaris-module-theme-skin-switcher
+composer require kitaris/module-theme-skin-switcher
 ```
 
 Register the autoloader in your theme, then boot once from `functions.php`:

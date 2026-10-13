@@ -25,7 +25,7 @@ use Siratik\PackageLoader\Registry;
 // files entry, so if it is not already declared no autoloader can produce it.
 if (class_exists(Registry::class, false)) {
 	Registry::instance()->register([
-		'package' => 'builtnorth/kitaris-module-theme-skin-switcher',
+		'package' => 'kitaris/module-theme-skin-switcher',
 		'version' => (string) require __DIR__ . '/version.php',
 		'root'    => __DIR__,
 		'psr4'    => ['KitarisModule\\ThemeSkinSwitcher\\' => 'inc/classes/'],

@@ -1,5 +1,5 @@
 {
-	"name": "builtnorth/kitaris-module-theme-skin-switcher",
+	"name": "kitaris/module-theme-skin-switcher",
 	"description": "Design skin engine and Site Editor switcher for WordPress block themes.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
@@ -18,7 +18,7 @@
 		"siratik/rest-access": "^0.1"
 	},
 	"suggest": {
-		"builtnorth/kitaris": "Section pattern and divider pickers follow the active skin (kitaris_editor_experience_data)."
+		"kitaris/framework": "Section pattern and divider pickers follow the active skin (kitaris_editor_experience_data)."
 	},
 	"scripts": {
 		"test": "echo 'Theme skin switcher tests not yet configured'"
