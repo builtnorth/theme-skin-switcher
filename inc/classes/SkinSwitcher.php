@@ -16,7 +16,7 @@ defined('ABSPATH') || defined('WP_CLI') || exit;
  * SkinSwitcher: single entry point for the package.
  *
  * Named for what it is rather than for its role, matching
- * {@see \Navas\StructuredData\Graph} and {@see \Navas\Portability\Portability}.
+ * {@see \Siratik\StructuredData\Graph} and {@see \Siratik\Portability\Portability}.
  * `App` is the name every consuming theme and plugin uses for its own root class, so
  * importing this package's entry point meant either an alias or a fully-qualified
  * reference at the call site — restating the package name the namespace had already

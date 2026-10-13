@@ -97,7 +97,7 @@ Use CLI for installs, imports, and automation. It is the supported way to **set*
 
 ## REST API
 
-Read-only endpoint for editor boot data (styles list, switch payloads, active slug). Requires [`navas/rest-access`](https://github.com/builtnorth/navas-rest-access).
+Read-only endpoint for editor boot data (styles list, switch payloads, active slug). Requires [`siratik/rest-access`](https://github.com/builtnorth/siratik-rest-access).
 
 ```http
 GET /wp-json/theme-skin-switcher/v1/style
