@@ -7,6 +7,8 @@
 # It does NOT apply to --prefer-source or path/symlink repositories.
 
 /tests/                 export-ignore
+**/test/                export-ignore
+*.test.js               export-ignore
 /docs/                  export-ignore
 /examples/              export-ignore
 /bin/                   export-ignore
