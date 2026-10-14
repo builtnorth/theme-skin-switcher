@@ -25,11 +25,7 @@ jobs:
       composer-namespace: "kitaris/module-theme-skin-switcher"
       version: ${{ inputs.version }}
       prerelease: ${{ inputs.prerelease }}
-      # Package has no phpunit/phpcs/phpcompat scripts yet.
       composer-repository-profile: from-composer
-      run-coverage: false
-      run-phpcs: false
-      run-phpcompat: false
     permissions:
       contents: write
     secrets: inherit
