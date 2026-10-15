@@ -70,15 +70,17 @@ class StyleEditorIntegration
 
 		add_filter(
 			'pre_update_option_' . $key,
-			static function ($value): bool {
-				if (! is_string($value)) {
-					return false;
+			static function ($value, $old_value) {
+				if (is_string($value)) {
+					StyleVariationManager::set_active_style($value);
 				}
 
-				StyleVariationManager::set_active_style($value);
-
-				return false;
-			}
+				// Returning the old value makes core skip the write, so no
+				// option row is created; the theme mod is the only store.
+				return $old_value;
+			},
+			10,
+			2
 		);
 	}
 

@@ -116,6 +116,38 @@ class ActiveSkinTest extends TestCase
 		$this->assertSame('arch', $manager->get_active_slug());
 	}
 
+	public function test_set_active_style_purges_page_cache_only_on_change(): void
+	{
+		$fired = 0;
+		WP_Mock::onAction('kitaris_performance_purge_all')->with(null)->perform(
+			static function () use (&$fired): void {
+				++$fired;
+			}
+		);
+
+		$this->themeMods[ StyleVariationManager::THEME_MOD_KEY ] = 'fresh';
+
+		$this->assertTrue(StyleVariationManager::set_active_style('fresh'));
+		$this->assertSame(0, $fired, 'saving the active skin again must not purge');
+
+		$this->assertTrue(StyleVariationManager::set_active_style('arch'));
+		$this->assertSame(1, $fired);
+	}
+
+	public function test_placeholder_image_ignores_path_segments(): void
+	{
+		$this->themeMods[ StyleVariationManager::THEME_MOD_KEY ] = 'fresh';
+		WP_Mock::userFunction('sanitize_file_name')->andReturnUsing(static fn ($name): string => (string) $name);
+		WP_Mock::userFunction('esc_url')->andReturnUsing(static fn ($url): string => (string) $url);
+
+		$this->assertSame('', StyleVariationManager::get_placeholder_image('../arch/variation.json'));
+		$this->assertSame('', StyleVariationManager::get_placeholder_image('../../fresh/variation.json'));
+		$this->assertSame(
+			$this->packUrl . 'design-skins/fresh/images/preview.png',
+			StyleVariationManager::get_placeholder_image('../../images/preview.png')
+		);
+	}
+
 	public function test_body_classes_follow_active_skin(): void
 	{
 		$this->themeMods[ StyleVariationManager::THEME_MOD_KEY ] = 'fresh';
@@ -230,6 +262,30 @@ class ActiveSkinTest extends TestCase
 			. '--wp--custom--zero: 0;'
 			. '--wp--custom--nested--deep--value: bold}',
 			$css
+		);
+	}
+
+	public function test_canvas_inline_css_rechecks_filtered_properties(): void
+	{
+		$expected = self::call_private(
+			'flatten_theme_json_custom_to_css_vars',
+			['borderRadius' => ['tile' => 'var(--wp--preset--border-radius--medium)', 'button' => 8], 'lineHeight' => 1.5, 'zero' => 0, 'nested' => ['deep' => ['value' => 'bold']]]
+		);
+
+		WP_Mock::onFilter('theme_skin_switcher_client_custom_theme_properties')
+			->with($expected, 'fresh', null)
+			->reply([
+				'--ok'                   => 'red</style><script>{x}',
+				'--Upper'                => 'blue',
+				'color'                  => 'green',
+				'--x;}body{color:red;--y' => 'pink',
+				'--n'                    => 4,
+				'--arr'                  => ['nope'],
+			]);
+
+		$this->assertSame(
+			':root, body.theme-skin-fresh, .editor-styles-wrapper{--ok: red/style>script>x;--n: 4}',
+			self::call_private('build_editor_canvas_inline_css', 'fresh')
 		);
 	}
 

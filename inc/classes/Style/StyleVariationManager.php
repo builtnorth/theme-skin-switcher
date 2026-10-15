@@ -1224,11 +1224,24 @@ class StyleVariationManager
 			$decls = [];
 
 			foreach ($properties as $key => $val) {
-				if ($val === null || $val === '') {
+				// Filtered values reach a <style> block, so re-check them:
+				// custom-property names only, and no characters that could
+				// close the rule or the style element, or add a declaration.
+				if (! is_string($key) || 1 !== preg_match('/^--[a-z0-9-]+$/', $key)) {
 					continue;
 				}
 
-				$decls[] = $key . ': ' . (string) $val;
+				if (! is_string($val) && ! is_numeric($val)) {
+					continue;
+				}
+
+				$val = str_replace(['<', '{', '}', ';'], '', (string) $val);
+
+				if ($val === '') {
+					continue;
+				}
+
+				$decls[] = $key . ': ' . $val;
 			}
 
 			if ($decls !== []) {
@@ -1566,8 +1579,10 @@ class StyleVariationManager
 	{
 		$instance = self::get_instance();
 		$slug     = $instance->get_active_slug();
+		// A bare file name inside the skin's images/ folder; never a path.
+		$filename = basename(sanitize_file_name($filename));
 
-		if (empty($slug)) {
+		if (empty($slug) || $filename === '') {
 			return '';
 		}
 
@@ -1652,12 +1667,21 @@ class StyleVariationManager
 			return false;
 		}
 
+		$instance = self::get_instance();
+		$previous = $instance->get_active_slug();
+
 		set_theme_mod(self::THEME_MOD_KEY, $slug);
 		remove_theme_mod(self::LEGACY_THEME_MOD_KEY);
 
 		// Clear the cache so the new value is used immediately.
-		$instance               = self::get_instance();
-		$instance->active_slug  = null;
+		$instance->active_slug = null;
+
+		// Cached pages carry the old skin's CSS. Page-cache plugins listen
+		// for this; nothing happens when none is active.
+		if ($previous !== $slug) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- kitaris-performance's documented purge action, fired not owned.
+			do_action('kitaris_performance_purge_all');
+		}
 
 		return true;
 	}
