@@ -10,4 +10,4 @@
  * @package KitarisModule\ThemeSkinSwitcher
  */
 
-return '1.0.1';
+return '0.1.6';

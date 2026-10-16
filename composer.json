@@ -1,60 +1,60 @@
 {
-	"name": "kitaris/module-theme-skin-switcher",
-	"description": "Design skin engine and Site Editor switcher for WordPress block themes.",
-	"type": "library",
-	"license": "GPL-2.0-or-later",
-	"autoload": {
-		"psr-4": {
-			"KitarisModule\\ThemeSkinSwitcher\\": "inc/classes/"
-		},
-		"files": [
-			"register.php",
-			"inc/public-api.php"
-		]
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"KitarisModule\\ThemeSkinSwitcher\\Tests\\": "tests/"
-		}
-	},
-	"require": {
-		"php": ">=8.1",
-		"siratik/package-loader": "^0.1",
-		"siratik/rest-access": "^0.1"
-	},
-	"require-dev": {
-		"10up/wp_mock": "^1.0",
-		"builtnorth/coding-standards": "^1.0",
-		"builtnorth/wp-mock-stand-ins": "^1.0",
-		"mockery/mockery": "^1.5",
-		"phpunit/phpunit": "^9.6",
-		"yoast/phpunit-polyfills": "^2.0"
-	},
-	"suggest": {
-		"kitaris/framework": "Section pattern and divider pickers follow the active skin (kitaris_editor_experience_data)."
-	},
-	"scripts": {
-		"test": "phpunit",
-		"test:unit": "phpunit --testsuite Unit",
-		"test:coverage": "phpunit --coverage-html coverage",
-		"lint": "phpcs",
-		"lint:fix": "phpcbf",
-		"phpcompat": "phpcs -p inc register.php --standard=PHPCompatibility --runtime-set testVersion 8.1-"
-	},
-	"config": {
-		"optimize-autoloader": false,
-		"prepend-autoloader": false,
-		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true
-		}
-	},
-	"minimum-stability": "stable",
-	"prefer-stable": true,
-	"extra": {
-		"branch-alias": {
-			"dev-main": "0.1.x-dev",
-			"dev-dev": "0.1.x-dev",
-			"dev-feature/package-architecture-refactor": "2.0.x-dev"
-		}
-	}
+  "name": "kitaris/module-theme-skin-switcher",
+  "description": "Design skin engine and Site Editor switcher for WordPress block themes.",
+  "type": "library",
+  "license": "GPL-2.0-or-later",
+  "autoload": {
+    "psr-4": {
+      "KitarisModule\\ThemeSkinSwitcher\\": "inc/classes/"
+    },
+    "files": [
+      "register.php",
+      "inc/public-api.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "KitarisModule\\ThemeSkinSwitcher\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": ">=8.1",
+    "siratik/package-loader": "^0.1",
+    "siratik/rest-access": "^0.1"
+  },
+  "require-dev": {
+    "10up/wp_mock": "^1.0",
+    "builtnorth/coding-standards": "^1.0",
+    "builtnorth/wp-mock-stand-ins": "^1.0",
+    "mockery/mockery": "^1.5",
+    "phpunit/phpunit": "^9.6",
+    "yoast/phpunit-polyfills": "^2.0"
+  },
+  "suggest": {
+    "kitaris/framework": "Section pattern and divider pickers follow the active skin (kitaris_editor_experience_data)."
+  },
+  "scripts": {
+    "test": "phpunit",
+    "test:unit": "phpunit --testsuite Unit",
+    "test:coverage": "phpunit --coverage-html coverage",
+    "lint": "phpcs",
+    "lint:fix": "phpcbf",
+    "phpcompat": "phpcs -p inc register.php --standard=PHPCompatibility --runtime-set testVersion 8.1-"
+  },
+  "config": {
+    "optimize-autoloader": false,
+    "prepend-autoloader": false,
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "extra": {
+    "branch-alias": {
+      "dev-main": "0.1.x-dev",
+      "dev-dev": "0.1.x-dev",
+      "dev-feature/package-architecture-refactor": "2.0.x-dev"
+    }
+  }
 }
