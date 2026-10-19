@@ -156,6 +156,7 @@ class StyleVariationManager
 		add_filter('editor_stylesheets', [$this, 'append_active_skin_editor_stylesheet']);
 		add_action('enqueue_block_assets', [$this, 'enqueue_skin_for_editor_canvas'], 20);
 		add_action('enqueue_block_editor_assets', [$this, 'enqueue_skin_for_site_editor'], 20);
+		SkinBlockAssets::boot();
 
 		add_filter('theme_skin_switcher_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
 		add_filter('kitaris_editor_experience_data', [$this, 'inject_editor_experience_overrides']);
@@ -1502,6 +1503,7 @@ class StyleVariationManager
 			'editorExperience'        => $editor_experience,
 			'customThemeProperties'   => self::get_client_custom_theme_properties($slug),
 			'variationThemeJsonCss'   => self::get_client_variation_theme_json_css($slug),
+			'blockAssetStyles'        => SkinBlockAssets::get_client_styles($slug),
 		];
 
 		return self::apply_filter_with_legacy_alias(

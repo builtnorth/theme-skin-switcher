@@ -13,6 +13,8 @@ const SKIN_CSS_PATTERN   = /\/build\/design-skins\/[a-z0-9-]+\/style\.css/i;
 // Any Google Fonts CSS API v2 bundle (skin switcher replaces the active skin link).
 const SKIN_FONT_PATTERN  = /fonts\.googleapis\.com\/css2\?/i;
 const HREF_ATTR          = 'data-theme-skin-href';
+// Per-block skin stylesheets from Kitaris BlockAssets (<link> or inlined <style>).
+const BLOCK_ASSET_ID_PREFIX = 'kitaris-block-assets-skin-';
 
 export const SKIN_CHANGED_EVENT = 'themeSkinSwitcherChanged';
 
@@ -144,6 +146,45 @@ function upsertStylesheet(doc, linkId, href, { bust = false } = {}) {
 
 	link.setAttribute(HREF_ATTR, href);
 	link.href = bust ? cacheBust(href) : href;
+}
+
+/**
+ * Swap per-block skin stylesheets: drop the previous skin's (linked or
+ * inlined by core) and add the active skin's that are not on the page yet.
+ *
+ * @param {Document} doc
+ * @param {Array<{id: string, href: string}>} styles Active skin's styles.
+ */
+export function syncBlockAssetStyles(doc, styles = []) {
+	const head = doc?.head;
+
+	if (!head) {
+		return;
+	}
+
+	const keep = new Set();
+	styles.forEach(({ id }) => {
+		keep.add(`${id}-css`);
+		keep.add(`${id}-inline-css`);
+	});
+
+	doc.querySelectorAll(`[id^="${BLOCK_ASSET_ID_PREFIX}"]`).forEach((node) => {
+		if (!keep.has(node.id)) {
+			node.remove();
+		}
+	});
+
+	styles.forEach(({ id, href }) => {
+		if (!href || doc.getElementById(`${id}-css`) || doc.getElementById(`${id}-inline-css`)) {
+			return;
+		}
+
+		const link = doc.createElement('link');
+		link.id = `${id}-css`;
+		link.rel = 'stylesheet';
+		link.href = href;
+		head.appendChild(link);
+	});
 }
 
 function swapBodyClasses(doc, bodyClass) {
@@ -317,6 +358,7 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 		fontCssUrl,
 		customThemeProperties,
 		variationThemeJsonCss,
+		blockAssetStyles,
 	} = payload;
 	const bust = Boolean(slugChanged);
 
@@ -334,6 +376,7 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 		// WP 7.0+ Site Editor canvas is iframed; variation.json tokens must reach every document.
 		applyCustomThemeProperties(doc, bodyClass, customThemeProperties);
 		applyVariationThemeJsonCss(doc, bodyClass, variationThemeJsonCss);
+		syncBlockAssetStyles(doc, blockAssetStyles);
 	});
 }
 
