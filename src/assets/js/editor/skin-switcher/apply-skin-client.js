@@ -41,8 +41,17 @@ function pausePersistence(ms = 2500) {
 	persistencePausedUntil = Date.now() + ms;
 }
 
-function getTargetDocuments() {
-	const docs = new Set([document]);
+/**
+ * Documents that render block content: same-origin iframes (the editor canvas
+ * and previews), plus the outer admin page only when the editor canvas is not
+ * iframed. With an iframed canvas, canvas CSS must stay off the outer page —
+ * WordPress copies canvas-looking styles from it into the iframe with a
+ * console warning.
+ *
+ * @return {Document[]}
+ */
+function getCanvasDocuments() {
+	const docs = new Set();
 
 	document.querySelectorAll('iframe').forEach((frame) => {
 		try {
@@ -53,6 +62,10 @@ function getTargetDocuments() {
 			// Cross-origin iframe — skip.
 		}
 	});
+
+	if (!document.querySelector('iframe[name="editor-canvas"]')) {
+		docs.add(document);
+	}
 
 	return [...docs];
 }
@@ -361,8 +374,11 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 		blockAssetStyles,
 	} = payload;
 	const bust = Boolean(slugChanged);
+	const canvasDocs = getCanvasDocuments();
 
-	getTargetDocuments().forEach((doc) => {
+	// The outer admin page always gets the font (sidebar previews) and body
+	// class, as on a full load; canvas CSS only when it is the canvas.
+	new Set([document, ...canvasDocs]).forEach((doc) => {
 		if (slugChanged) {
 			removeCompetingSkinAssets(doc, {
 				keepStyleHref: styleCssUrl,
@@ -370,10 +386,18 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 			});
 		}
 
-		upsertStylesheet(doc, SKIN_STYLE_LINK_ID, styleCssUrl, { bust });
 		upsertStylesheet(doc, SKIN_FONT_LINK_ID, fontCssUrl, { bust });
 		swapBodyClasses(doc, bodyClass);
-		// WP 7.0+ Site Editor canvas is iframed; variation.json tokens must reach every document.
+
+		if (!canvasDocs.includes(doc)) {
+			[SKIN_STYLE_LINK_ID, SKIN_CUSTOM_VARS_ID, SKIN_VARIATION_JSON_CSS_ID].forEach((id) =>
+				doc.getElementById(id)?.remove()
+			);
+			return;
+		}
+
+		upsertStylesheet(doc, SKIN_STYLE_LINK_ID, styleCssUrl, { bust });
+		// variation.json tokens must reach every canvas document (WP 7.0+ canvases are iframed).
 		applyCustomThemeProperties(doc, bodyClass, customThemeProperties);
 		applyVariationThemeJsonCss(doc, bodyClass, variationThemeJsonCss);
 		syncBlockAssetStyles(doc, blockAssetStyles);
