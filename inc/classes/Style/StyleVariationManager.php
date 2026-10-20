@@ -37,6 +37,7 @@ use Kitaris\EditorExperience\PatternConfig;
 use Kitaris\EditorExperience\SectionDividerConfig;
 use KitarisModule\ThemeSkinSwitcher\SkinPackRegistry;
 use KitarisModule\ThemeSkinSwitcher\Traits\SingletonTrait;
+use WP_Theme_JSON_Resolver;
 
 // Don't load directly.
 defined('ABSPATH') || defined('WP_CLI') || exit;
@@ -1699,33 +1700,20 @@ class StyleVariationManager
 	 */
 	private function get_slug_from_global_styles(): string
 	{
-		if (!function_exists('get_stylesheet')) {
+		if (!function_exists('wp_get_theme')) {
 			return '';
 		}
 
-		$posts = get_posts([
-			'post_type'      => 'wp_global_styles',
-			'post_status'    => 'publish',
-			'numberposts'    => 1,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-			'tax_query'      => [
-				[
-					'taxonomy' => 'wp_theme',
-					'field'    => 'slug',
-					'terms'    => get_stylesheet(),
-				],
-			],
-			'no_found_rows'  => true,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-		]);
+		// Core's own lookup, so the query matches the one core runs for global
+		// styles and is answered from WP_Query's cache instead of running twice.
+		// $create_post stays false: reading must never create the post.
+		$user_cpt = WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles(wp_get_theme());
 
-		if (empty($posts)) {
+		if (empty($user_cpt['post_content'])) {
 			return '';
 		}
 
-		$data = json_decode($posts[0]->post_content ?? '', true);
+		$data = json_decode((string) $user_cpt['post_content'], true);
 
 		return is_array($data) ? (string) ($data['slug'] ?? '') : '';
 	}

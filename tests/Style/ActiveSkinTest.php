@@ -13,6 +13,7 @@ use KitarisModule\ThemeSkinSwitcher\Tests\Support\SkinPackFixture;
 use WP_Block_Editor_Context;
 use WP_Mock;
 use WP_Mock\Tools\TestCase;
+use WP_Theme_JSON_Resolver;
 
 /**
  * StyleVariationManager: active skin resolution (theme mod, legacy migration, global
@@ -75,14 +76,14 @@ class ActiveSkinTest extends TestCase
 
 	public function test_falls_back_to_global_styles_variation(): void
 	{
-		$this->globalStylesPosts = [(object) ['post_content' => '{"slug":"arch","version":3}']];
+		WP_Theme_JSON_Resolver::$user_cpt = ['post_content' => '{"slug":"arch","version":3}'];
 
 		$this->assertSame('arch', StyleVariationManager::get_instance()->get_active_slug());
 	}
 
 	public function test_global_styles_with_invalid_json_resolves_to_empty(): void
 	{
-		$this->globalStylesPosts = [(object) ['post_content' => 'not json']];
+		WP_Theme_JSON_Resolver::$user_cpt = ['post_content' => 'not json'];
 
 		$this->assertSame('', StyleVariationManager::get_instance()->get_active_slug());
 	}

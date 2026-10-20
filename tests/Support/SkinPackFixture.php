@@ -16,6 +16,7 @@ use RecursiveIteratorIterator;
 use ReflectionMethod;
 use ReflectionProperty;
 use WP_Mock;
+use WP_Theme_JSON_Resolver;
 
 /**
  * Builds a real skin pack in a temp directory, backs the theme mod API with an
@@ -47,16 +48,13 @@ trait SkinPackFixture
 	/** @var array<string, mixed> */
 	protected array $themeMods = [];
 
-	/** @var list<object> */
-	protected array $globalStylesPosts = [];
-
 	/** @var array<string, bool> Hook name => has_filter() result. */
 	protected array $registeredFilters = [];
 
 	protected function set_up_wordpress(): void
 	{
 		$this->themeMods         = [];
-		$this->globalStylesPosts = [];
+		WP_Theme_JSON_Resolver::reset();
 		$this->registeredFilters = [];
 
 		WP_Mock::userFunction('sanitize_key')->andReturnUsing(
@@ -98,7 +96,7 @@ trait SkinPackFixture
 				unset($this->themeMods[ $name ]);
 			}
 		);
-		WP_Mock::userFunction('get_posts')->andReturnUsing(fn (): array => $this->globalStylesPosts);
+		WP_Mock::userFunction('wp_get_theme')->andReturn(null);
 	}
 
 	protected function build_pack(): void
