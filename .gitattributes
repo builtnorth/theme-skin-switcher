@@ -31,3 +31,4 @@
 /webpack.config.js      export-ignore
 /webpack.*.js           export-ignore
 /__webpack.config.js    export-ignore
+*.map                   export-ignore
