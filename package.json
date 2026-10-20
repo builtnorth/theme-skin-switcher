@@ -2,7 +2,8 @@
 	"name": "@kitaris/module-theme-skin-switcher",
 	"version": "1.0.0",
 	"private": true,
-	"license": "GPL-2.0-or-later",
+	"description": "Design skin engine and Site Editor switcher for WordPress block themes.",
+	"license": "GPL-3.0-or-later",
 	"scripts": {
 		"build": "wp-scripts build",
 		"start": "wp-scripts start",

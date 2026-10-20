@@ -1,4 +1,4 @@
-# Theme Skin Switcher
+# Kitaris Theme Skin Switcher
 
 A WordPress library for **block themes** that need more than core style variations: packaged **design skins** (tokens, CSS, section patterns, dividers) with a Site Editor switcher and optional CLI provisioning.
 
@@ -150,4 +150,4 @@ PHP classes live under `inc/classes/` with namespace `KitarisModule\ThemeSkinSwi
 
 ## License
 
-GPL-2.0-or-later
+GPL-3.0-or-later — see `LICENSE`.
