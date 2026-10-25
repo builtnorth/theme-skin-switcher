@@ -1,6 +1,6 @@
 {
 	"name": "@kitaris/module-theme-skin-switcher",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"private": true,
 	"description": "Design skin engine and Site Editor switcher for WordPress block themes.",
 	"license": "GPL-3.0-or-later",
