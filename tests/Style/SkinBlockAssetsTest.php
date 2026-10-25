@@ -106,4 +106,22 @@ class SkinBlockAssetsTest extends TestCase
 		$this->assertSame([], SkinBlockAssets::get_client_styles('arch'));
 		$this->assertSame([], SkinBlockAssets::get_client_styles('_default'));
 	}
+
+	public function test_client_styles_come_from_the_files_when_the_skin_has_no_manifest(): void
+	{
+		$build = $this->packPath . 'build/design-skins/fresh/block-assets';
+		unlink($build . '/' . BlockAssets::MANIFEST_FILE);
+		file_put_contents($build . '/core/button-rtl.css', '.x{}');
+		file_put_contents($build . '/core/button.asset.php', "<?php return ['dependencies' => [], 'version' => 'h1'];");
+
+		$this->assertSame(
+			[
+				[
+					'id'   => 'kitaris-block-assets-skin-fresh-core-button',
+					'href' => $this->packUrl . 'build/design-skins/fresh/block-assets/core/button.css?ver=h1',
+				],
+			],
+			SkinBlockAssets::get_client_styles('fresh')
+		);
+	}
 }

@@ -4,8 +4,8 @@
  * Per-block CSS/JS for design skins.
  *
  * A skin can ship design-skins/{slug}/block-assets/{namespace}/{block}.{scss,js};
- * the theme build writes build/design-skins/{slug}/block-assets/ with a
- * manifest. Only the active skin's directory is handed to Kitaris BlockAssets,
+ * the theme build writes build/design-skins/{slug}/block-assets/, where Kitaris
+ * finds each block's files by path. Only the active skin's directory is handed to Kitaris BlockAssets,
  * after the parent and child theme, so the skin's rules win for that block.
  *
  * @package KitarisModule\ThemeSkinSwitcher
@@ -80,7 +80,14 @@ final class SkinBlockAssets
 		$source    = self::source_for_slug($slug);
 		$styles    = [];
 
-		foreach ((new BlockAssets())->read_manifest($directory) as $block_name => $entry) {
+		// read_directory() finds files by path (and still reads a manifest from older
+		// builds); an older Kitaris without it only reads the manifest.
+		$block_assets = new BlockAssets();
+		$entries      = method_exists($block_assets, 'read_directory')
+			? $block_assets->read_directory($directory)
+			: $block_assets->read_manifest($directory);
+
+		foreach ($entries as $block_name => $entry) {
 			if (! isset($entry['style'])) {
 				continue;
 			}
