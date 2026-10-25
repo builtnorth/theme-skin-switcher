@@ -27,6 +27,14 @@ class SkinBlockAssetsTest extends TestCase
 	public function setUp(): void
 	{
 		parent::setUp();
+
+		// Kitaris BlockAssets lives in kitaris/framework, which this package
+		// only suggests. A standalone install (CI) has no copy, so these
+		// integration checks run in the monorepo, where the framework is loaded.
+		if (! class_exists(BlockAssets::class)) {
+			$this->markTestSkipped('kitaris/framework (Kitaris\Blocks\BlockAssets) is not installed.');
+		}
+
 		WP_Mock::setUp();
 		self::reset_static_state();
 		$this->set_up_wordpress();
