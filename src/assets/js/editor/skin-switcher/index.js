@@ -3,6 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { registerPlugin } from '@wordpress/plugins';
+import { initSiteCustomProperties } from './apply-skin-client';
 import { getSkinSwitcherBootData } from './boot-data';
 import { initSkinPersistence } from './skin-persistence';
 import { initSkinSiteEditorSave } from './skin-site-editor-save';
@@ -17,6 +18,7 @@ if (boot.nonce) {
 
 initSkinPersistence();
 initSkinSiteEditorSave();
+initSiteCustomProperties();
 
 registerPlugin('theme-skin-switcher', {
 	render: SkinSwitcherRootMount,

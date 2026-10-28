@@ -1,12 +1,14 @@
 /**
  * Apply a Theme skin switch in the editor without reloading the page.
  */
+import { select, subscribe } from '@wordpress/data';
 import { getSkinSwitcherBootData } from './boot-data';
 
 const SKIN_STYLE_LINK_ID = 'theme-skin-switcher-active-skin-style';
 const SKIN_FONT_LINK_ID  = 'theme-skin-switcher-active-skin-font';
 const SKIN_CUSTOM_VARS_ID = 'theme-skin-switcher-custom-theme-properties';
 const SKIN_VARIATION_JSON_CSS_ID = 'theme-skin-switcher-variation-theme-json';
+const SITE_CUSTOM_VARS_ID = 'theme-skin-switcher-site-custom-properties';
 const SKIN_BODY_PREFIX   = 'theme-skin-';
 // Matches compiled skin stylesheets under build/design-skins/{slug}/style.css.
 const SKIN_CSS_PATTERN   = /\/build\/design-skins\/[a-z0-9-]+\/style\.css/i;
@@ -315,6 +317,139 @@ function applyVariationThemeJsonCss(doc, bodyClass, css) {
 	head.appendChild(el);
 }
 
+/**
+ * A theme.json key as core names it in a CSS variable (_wp_to_kebab_case:
+ * lineHeight → line-height, h1 → h-1).
+ *
+ * @param {string} key
+ * @return {string}
+ */
+function toKebabCase(key) {
+	return String(key)
+		.replace(/([a-z])([A-Z])/g, '$1-$2')
+		.replace(/([a-zA-Z])(\d)/g, '$1-$2')
+		.replace(/(\d)([a-zA-Z])/g, '$1-$2')
+		.replace(/[\s_/]+/g, '-')
+		.toLowerCase();
+}
+
+/**
+ * settings.custom as CSS variables, named as core and the server's
+ * flatten_theme_json_custom_to_css_vars() name them. Values that could close
+ * the rule or the style element are left out.
+ *
+ * @param {Object}   custom settings.custom (or a group inside it).
+ * @param {string[]} path   Variable path so far.
+ * @return {Object<string, string>} Variable name → value.
+ */
+export function customPropertiesFrom(custom, path = []) {
+	const out = {};
+
+	if (!custom || typeof custom !== 'object' || Array.isArray(custom)) {
+		return out;
+	}
+
+	Object.entries(custom).forEach(([key, value]) => {
+		const segments = [...path, toKebabCase(key)];
+
+		if (value && typeof value === 'object' && !Array.isArray(value)) {
+			Object.assign(out, customPropertiesFrom(value, segments));
+			return;
+		}
+
+		if (typeof value !== 'string' && typeof value !== 'number') {
+			return;
+		}
+
+		const text = String(value).trim();
+
+		if (text === '' || /[<>{};]/.test(text)) {
+			return;
+		}
+
+		out[`--wp--custom--${segments.join('--')}`] = text;
+	});
+
+	return out;
+}
+
+/**
+ * The site's own settings.custom from the editor's global styles record
+ * (what the Styles panel and agents change), unsaved edits included.
+ *
+ * @return {Object|undefined}
+ */
+function siteCustomSettings() {
+	const core = select('core');
+	const id = core?.__experimentalGetCurrentGlobalStylesId?.();
+	const record = id ? core.getEditedEntityRecord?.('root', 'globalStyles', id) : null;
+
+	return record?.settings?.custom;
+}
+
+/**
+ * The site's own tokens after the skin's: the skin's canvas CSS has to beat
+ * core's :root to preview a skin switch, so on its own it would also hide
+ * every token the site sets over the skin (core's own order: the site's
+ * styles over the theme and its skin), unsaved edits included.
+ *
+ * @param {Document} doc
+ * @param {string}   bodyClass Active skin's body class.
+ */
+function applySiteCustomProperties(doc, bodyClass) {
+	const head = doc?.head;
+
+	if (!head) {
+		return;
+	}
+
+	doc.getElementById(SITE_CUSTOM_VARS_ID)?.remove();
+
+	if (!bodyClass || !/^theme-skin-[a-z0-9-]+$/.test(bodyClass)) {
+		return;
+	}
+
+	const decls = Object.entries(customPropertiesFrom(siteCustomSettings()))
+		.map(([key, val]) => `${key}: ${val};`)
+		.join('');
+
+	if (!decls) {
+		return;
+	}
+
+	const el = doc.createElement('style');
+	el.id = SITE_CUSTOM_VARS_ID;
+	el.textContent = `:root, body.${bodyClass}, .editor-styles-wrapper{${decls}}`;
+	head.appendChild(el);
+}
+
+let siteCustomSubscribed = false;
+
+/**
+ * Keep the site's tokens over the skin's as the editor's global styles
+ * change (the Styles panel, an agent, undo).
+ */
+export function initSiteCustomProperties() {
+	if (siteCustomSubscribed) {
+		return;
+	}
+
+	siteCustomSubscribed = true;
+	let last = null;
+
+	subscribe(() => {
+		const bodyClass = lastAppliedPayload?.bodyClass;
+		const key = JSON.stringify([bodyClass || '', siteCustomSettings() || null]);
+
+		if (!bodyClass || key === last) {
+			return;
+		}
+
+		last = key;
+		getCanvasDocuments().forEach((doc) => applySiteCustomProperties(doc, bodyClass));
+	});
+}
+
 export function mergeEditorExperience(patch) {
 	if (!patch || typeof patch !== 'object') {
 		return;
@@ -390,7 +525,7 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 		swapBodyClasses(doc, bodyClass);
 
 		if (!canvasDocs.includes(doc)) {
-			[SKIN_STYLE_LINK_ID, SKIN_CUSTOM_VARS_ID, SKIN_VARIATION_JSON_CSS_ID].forEach((id) =>
+			[SKIN_STYLE_LINK_ID, SKIN_CUSTOM_VARS_ID, SKIN_VARIATION_JSON_CSS_ID, SITE_CUSTOM_VARS_ID].forEach((id) =>
 				doc.getElementById(id)?.remove()
 			);
 			return;
@@ -401,6 +536,8 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 		applyCustomThemeProperties(doc, bodyClass, customThemeProperties);
 		applyVariationThemeJsonCss(doc, bodyClass, variationThemeJsonCss);
 		syncBlockAssetStyles(doc, blockAssetStyles);
+		// Last, so the site's own tokens stay over the skin's.
+		applySiteCustomProperties(doc, bodyClass);
 	});
 }
 
