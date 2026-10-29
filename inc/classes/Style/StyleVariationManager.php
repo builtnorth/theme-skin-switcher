@@ -1614,9 +1614,47 @@ class StyleVariationManager
 	}
 
 	/**
+	 * Optional description and tags for a skin (design-skins/{slug}/meta.json),
+	 * used where a skin is chosen by description (e.g. an agent picking one).
+	 *
+	 * @return array{description: string, tags: string[]}
+	 */
+	public static function get_skin_meta(string $slug): array
+	{
+		$meta = ['description' => '', 'tags' => []];
+
+		if (! self::is_registered_skin($slug)) {
+			return $meta;
+		}
+
+		$path = self::get_skin_directory_path($slug) . 'meta.json';
+
+		if (! is_readable($path)) {
+			return $meta;
+		}
+
+		$data = json_decode((string) file_get_contents($path), true);
+
+		if (! is_array($data)) {
+			return $meta;
+		}
+
+		if (is_string($data['description'] ?? null)) {
+			$meta['description'] = mb_substr(sanitize_text_field($data['description']), 0, 300);
+		}
+
+		if (is_array($data['tags'] ?? null)) {
+			$tags         = array_map('sanitize_key', array_filter($data['tags'], 'is_string'));
+			$meta['tags'] = array_slice(array_values(array_unique(array_filter($tags))), 0, 12);
+		}
+
+		return $meta;
+	}
+
+	/**
 	 * Skin metadata for the Site Editor switcher UI.
 	 *
-	 * @return array<int, array{slug: string, title: string, previewImageUrl: string, baseColor: string, primaryColor: string, contrastColor: string}>
+	 * @return array<int, array{slug: string, title: string, description: string, tags: string[], previewImageUrl: string, baseColor: string, primaryColor: string, contrastColor: string}>
 	 */
 	public static function get_editor_style_definitions(): array
 	{
@@ -1644,9 +1682,13 @@ class StyleVariationManager
 				}
 			}
 
+			$meta = self::get_skin_meta($slug);
+
 			$definitions[] = [
 				'slug'             => $slug,
 				'title'            => (string) ($data['title'] ?? ucfirst($slug)),
+				'description'      => $meta['description'],
+				'tags'             => $meta['tags'],
 				'previewImageUrl'  => self::get_skin_preview_image_url($slug),
 				'baseColor'        => $colors['base'] ?? '#ffffff',
 				'primaryColor'     => $colors['primary'] ?? '#333333',

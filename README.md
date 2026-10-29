@@ -46,6 +46,7 @@ your-theme/
 │   │   └── section-dividers/
 │   └── fresh/                    # one directory per skin slug
 │       ├── variation.json        # theme.json-style variation payload
+│       ├── meta.json             # optional: { "description", "tags" }
 │       ├── style.scss            # source (optional if you only ship CSS)
 │       ├── section-patterns/     # optional SVGs for pattern pickers
 │       ├── section-dividers/
