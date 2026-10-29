@@ -542,6 +542,35 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 }
 
 /**
+ * Apply a skin payload to one document outside the editor (e.g. a front-end
+ * preview frame): its stylesheet, font, body class, tokens, variation CSS
+ * and block assets, as the editor canvas gets them. The site's own tokens
+ * are not re-applied (they come from the editor's store); a page loaded
+ * after the skin is saved has them.
+ *
+ * @param {Document} doc
+ * @param {Object}   payload A switch payload (get_all_client_switch_payloads()).
+ */
+export function applySkinToDocument(doc, payload) {
+	if (!doc?.head || !payload?.slug) {
+		return;
+	}
+
+	const bodyClass = payload.bodyClass || `${SKIN_BODY_PREFIX}${payload.slug}`;
+
+	removeCompetingSkinAssets(doc, {
+		keepStyleHref: payload.styleCssUrl,
+		keepFontHref: payload.fontCssUrl,
+	});
+	upsertStylesheet(doc, SKIN_FONT_LINK_ID, payload.fontCssUrl);
+	swapBodyClasses(doc, bodyClass);
+	upsertStylesheet(doc, SKIN_STYLE_LINK_ID, payload.styleCssUrl);
+	applyCustomThemeProperties(doc, bodyClass, payload.customThemeProperties);
+	applyVariationThemeJsonCss(doc, bodyClass, payload.variationThemeJsonCss);
+	syncBlockAssetStyles(doc, payload.blockAssetStyles);
+}
+
+/**
  * Re-apply last or provided payload (e.g. after iframe navigation).
  *
  * @param {Object|null} payload Optional explicit payload.
