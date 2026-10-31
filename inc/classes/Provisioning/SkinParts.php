@@ -17,7 +17,7 @@ defined('ABSPATH') || defined('WP_CLI') || exit;
 
 /**
  * A skin's meta.json can pair it with a shared header and footer from the
- * pack's pattern-archive folder. Skins are chosen by a site setting, so this
+ * pack's patterns folder. Skins are chosen by a site setting, so this
  * follows the setting and every route that changes it is covered.
  *
  * The pair is saved as the site's template parts, like a Site Editor save. A
@@ -28,7 +28,7 @@ final class SkinParts
 	/** Hash of the content applied to a part. */
 	private const APPLIED_META = '_theme_skin_switcher_applied';
 
-	private const FOLDER = 'pattern-archive';
+	private const FOLDER = 'patterns';
 
 	public static function register(): void
 	{
