@@ -105,8 +105,8 @@ class SkinPartsTest extends WP_UnitTestCase {
 	}
 
 	private function pattern( string $path, string $markup ): void {
-		wp_mkdir_p( dirname( $this->pack . '/pattern-archive/' . $path ) );
-		file_put_contents( $this->pack . '/pattern-archive/' . $path . '.php', $markup ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- a test fixture.
+		wp_mkdir_p( dirname( $this->pack . '/patterns/' . $path ) );
+		file_put_contents( $this->pack . '/patterns/' . $path . '.php', $markup ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- a test fixture.
 	}
 
 	private function part( string $area ): ?WP_Block_Template {
