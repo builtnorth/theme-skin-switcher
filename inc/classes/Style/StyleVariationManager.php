@@ -1615,13 +1615,14 @@ class StyleVariationManager
 
 	/**
 	 * Optional description and tags for a skin (design-skins/{slug}/meta.json),
-	 * used where a skin is chosen by description (e.g. an agent picking one).
+	 * used where a skin is chosen by description (e.g. an agent picking one),
+	 * and the shared header and footer it pairs with (SkinParts).
 	 *
-	 * @return array{description: string, tags: string[]}
+	 * @return array{description: string, tags: string[], header: string, footer: string}
 	 */
 	public static function get_skin_meta(string $slug): array
 	{
-		$meta = ['description' => '', 'tags' => []];
+		$meta = ['description' => '', 'tags' => [], 'header' => '', 'footer' => ''];
 
 		if (! self::is_registered_skin($slug)) {
 			return $meta;
@@ -1646,6 +1647,12 @@ class StyleVariationManager
 		if (is_array($data['tags'] ?? null)) {
 			$tags         = array_map('sanitize_key', array_filter($data['tags'], 'is_string'));
 			$meta['tags'] = array_slice(array_values(array_unique(array_filter($tags))), 0, 12);
+		}
+
+		foreach (['header', 'footer'] as $area) {
+			if (is_string($data[$area] ?? null)) {
+				$meta[$area] = sanitize_key($data[$area]);
+			}
 		}
 
 		return $meta;

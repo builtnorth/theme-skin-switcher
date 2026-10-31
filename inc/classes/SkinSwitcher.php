@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace KitarisModule\ThemeSkinSwitcher;
 
+use KitarisModule\ThemeSkinSwitcher\Provisioning\SkinParts;
 use KitarisModule\ThemeSkinSwitcher\Provisioning\StyleProvisioner;
 use KitarisModule\ThemeSkinSwitcher\RestAPI\StyleRoute;
 use KitarisModule\ThemeSkinSwitcher\Style\StyleEditorIntegration;
@@ -38,6 +39,7 @@ class SkinSwitcher
 		add_action('after_setup_theme', [$this, 'register_skin_pack'], 1);
 		add_action('after_setup_theme', [$this, 'init'], 5);
 		add_action('enqueue_block_editor_assets', [$this, 'enqueue_editor_assets']);
+		SkinParts::register();
 	}
 
 	private function define_constants(): void
