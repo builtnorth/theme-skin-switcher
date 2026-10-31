@@ -9,6 +9,9 @@
     <testsuites>
         <testsuite name="Unit">
             <directory>tests</directory>
+            <!-- Real WordPress: phpunit-integration.xml. -->
+            <exclude>tests/Integration</exclude>
+            <exclude>tests/wp-content</exclude>
         </testsuite>
     </testsuites>
     <coverage>

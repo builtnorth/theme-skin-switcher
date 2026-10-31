@@ -172,6 +172,8 @@ class SkinDiscoveryTest extends TestCase
 			[
 				'slug'            => 'fresh',
 				'title'           => 'Fresh',
+				'description'     => '',
+				'tags'            => [],
 				'previewImageUrl' => $this->packUrl . 'design-skins/fresh/images/preview.png',
 				'baseColor'       => '#fafafa',
 				'primaryColor'    => '#0055ff',
