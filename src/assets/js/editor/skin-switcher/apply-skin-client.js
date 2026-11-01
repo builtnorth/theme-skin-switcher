@@ -9,6 +9,8 @@ const SKIN_FONT_LINK_ID  = 'theme-skin-switcher-active-skin-font';
 const SKIN_CUSTOM_VARS_ID = 'theme-skin-switcher-custom-theme-properties';
 const SKIN_VARIATION_JSON_CSS_ID = 'theme-skin-switcher-variation-theme-json';
 const SITE_CUSTOM_VARS_ID = 'theme-skin-switcher-site-custom-properties';
+// The tokens PHP printed for the skin active at page load.
+const LOADED_SKIN_TOKENS_ID = 'theme-skin-switcher-canvas-tokens-inline-css';
 const SKIN_BODY_PREFIX   = 'theme-skin-';
 // Matches compiled skin stylesheets under build/design-skins/{slug}/style.css.
 const SKIN_CSS_PATTERN   = /\/build\/design-skins\/[a-z0-9-]+\/style\.css/i;
@@ -25,6 +27,7 @@ let lastAppliedSlug = '';
 let iframeObserver = null;
 let persistencePausedUntil = 0;
 let reapplyDebounceTimer = null;
+let skinSwitched = false;
 
 export function isSkinPersistencePaused() {
 	return Date.now() < persistencePausedUntil;
@@ -524,6 +527,12 @@ export function applyToDocuments(payload, { slugChanged = false } = {}) {
 		upsertStylesheet(doc, SKIN_FONT_LINK_ID, fontCssUrl, { bust });
 		swapBodyClasses(doc, bodyClass);
 
+		// A canvas can mount again after the switch, so every apply clears these:
+		// a token only the old skin set would otherwise outlive the swap.
+		if (skinSwitched) {
+			doc.getElementById(LOADED_SKIN_TOKENS_ID)?.remove();
+		}
+
 		if (!canvasDocs.includes(doc)) {
 			[SKIN_STYLE_LINK_ID, SKIN_CUSTOM_VARS_ID, SKIN_VARIATION_JSON_CSS_ID, SITE_CUSTOM_VARS_ID].forEach((id) =>
 				doc.getElementById(id)?.remove()
@@ -576,6 +585,12 @@ export function applySkinToDocument(doc, payload) {
  * @param {Object|null} payload Optional explicit payload.
  */
 export function reapplyActiveSkinToDocuments(payload = null) {
+	// A discard or an outside edit changes the skin through here: a real switch.
+	if (payload?.slug && lastAppliedSlug && payload.slug !== lastAppliedSlug) {
+		applySkinClientSide(payload);
+		return;
+	}
+
 	if (isSkinPersistencePaused()) {
 		return;
 	}
@@ -585,6 +600,9 @@ export function reapplyActiveSkinToDocuments(payload = null) {
 	if (!active?.slug) {
 		return;
 	}
+
+	lastAppliedSlug = active.slug;
+	lastAppliedPayload = active;
 
 	applyToDocuments(
 		{
@@ -608,16 +626,20 @@ function scheduleDebouncedReapply() {
 }
 
 function scheduleIframeReapply() {
-	if (!lastAppliedPayload || isSkinPersistencePaused()) {
+	if (!lastAppliedPayload) {
 		return;
 	}
+
+	// A switch starts the pause just before this runs, and a canvas can mount
+	// during it, so the retries come after it ends.
+	const pause = Math.max(persistencePausedUntil - Date.now(), 0);
 
 	[400, 1200].forEach((delay) => {
 		window.setTimeout(() => {
 			if (!isSkinPersistencePaused()) {
 				reapplyActiveSkinToDocuments();
 			}
-		}, delay);
+		}, pause + delay);
 	});
 }
 
@@ -664,6 +686,7 @@ export function applySkinClientSide(payload) {
 		lastAppliedSlug !== '' && slug !== lastAppliedSlug;
 
 	if (slugChanged) {
+		skinSwitched = true;
 		pausePersistence();
 	}
 

@@ -460,6 +460,38 @@ class StyleVariationManager
 	}
 
 	/**
+	 * The theme's merged settings and styles as they would be with a skin
+	 * active, the data core's editor builds its global stylesheet from.
+	 *
+	 * @param string $slug Registered skin slug.
+	 * @return array{settings: array<string, mixed>, styles: array<string, mixed>}|null Null for an unknown skin.
+	 */
+	public static function get_theme_base_for_slug(string $slug): ?array
+	{
+		if (! self::is_registered_skin($slug)) {
+			return null;
+		}
+
+		$instance = self::get_instance();
+		$previous = $instance->get_active_slug();
+
+		$instance->active_slug = $slug;
+		\WP_Theme_JSON_Resolver::clean_cached_data();
+
+		try {
+			$raw = \WP_Theme_JSON_Resolver::get_merged_data('theme')->get_raw_data();
+		} finally {
+			$instance->active_slug = $previous;
+			\WP_Theme_JSON_Resolver::clean_cached_data();
+		}
+
+		return [
+			'settings' => $raw['settings'] ?? [],
+			'styles'   => $raw['styles'] ?? [],
+		];
+	}
+
+	/**
 	 * Client-side theme token preview: merged settings.custom (base theme.json + skin variation).
 	 *
 	 * Skin variation.json often only overrides a subset of tokens (e.g. Flow only sets

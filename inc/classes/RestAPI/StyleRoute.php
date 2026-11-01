@@ -18,6 +18,8 @@ use Siratik\Rest\Route\AbstractRestRoute;
 use Siratik\Rest\Permission\PermissionFactory;
 use KitarisModule\ThemeSkinSwitcher\SkinPackRegistry;
 use KitarisModule\ThemeSkinSwitcher\Style\StyleVariationManager;
+use WP_Error;
+use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
@@ -55,6 +57,39 @@ final class StyleRoute extends AbstractRestRoute
 				],
 			]
 		);
+
+		$this->register_route(
+			self::REST_ROUTE . '/base',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [$this, 'handle_get_base'],
+					'permission_callback' => [$this, 'check_permission'],
+					'args'                => [
+						'slug' => [
+							'type'     => 'string',
+							'pattern'  => '^[a-z0-9-]+$',
+							'required' => true,
+						],
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * The theme's styles with a skin merged in, shaped like core's
+	 * /wp/v2/global-styles/themes/{stylesheet} response.
+	 */
+	public function handle_get_base(WP_REST_Request $request): WP_REST_Response|WP_Error
+	{
+		$base = StyleVariationManager::get_theme_base_for_slug((string) $request->get_param('slug'));
+
+		if (null === $base) {
+			return new WP_Error('theme_skin_switcher_unknown_skin', __('That skin is not available.', 'theme-skin-switcher'), ['status' => 404]);
+		}
+
+		return new WP_REST_Response($base, 200);
 	}
 
 	public function handle_get_style(): WP_REST_Response

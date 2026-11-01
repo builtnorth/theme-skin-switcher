@@ -5,6 +5,9 @@ import { dispatch, select, subscribe } from '@wordpress/data';
 import { getSkinSwitcherBootData } from './boot-data';
 import { getSwitchPayload } from './client-switch-payload';
 import { reapplyActiveSkinToDocuments } from './apply-skin-client';
+import { syncBaseStyles } from './skin-base-styles';
+
+const SKIN_PART_AREAS = ['header', 'footer'];
 
 function getSettingKey() {
 	return getSkinSwitcherBootData()?.settingKey || 'theme_skin_switcher_active_style';
@@ -68,11 +71,47 @@ function previewSkinSlug(slug) {
 }
 
 /**
+ * Show the header and footer the server gave the saved skin. A part with
+ * unsaved edits keeps them; the server never replaces a part its owner changed.
+ *
+ * @param {Object} core The core store's selectors.
+ */
+function refreshSkinParts(core) {
+	const stylesheet = core.getCurrentTheme?.()?.stylesheet;
+
+	if (!stylesheet) {
+		return;
+	}
+
+	SKIN_PART_AREAS.forEach((area) => {
+		const id = `${stylesheet}//${area}`;
+
+		if (
+			core.hasEditsForEntityRecord?.('postType', 'wp_template_part', id) ||
+			core.isSavingEntityRecord?.('postType', 'wp_template_part', id)
+		) {
+			return;
+		}
+
+		// The template part block reads the edited record, whose resolver core
+		// tracks separately: both have to be invalidated for it to fetch again.
+		['getEntityRecord', 'getEditedEntityRecord'].forEach((selector) => {
+			dispatch('core').invalidateResolution(selector, [
+				'postType',
+				'wp_template_part',
+				id,
+			]);
+		});
+	});
+}
+
+/**
  * Subscribe to site settings saves and discard reverts.
  */
 export function initSkinSiteEditorSave() {
 	const boot = getSkinSwitcherBootData();
 	let lastPreviewSlug = getSiteEditorSkinSlug();
+	let savedSlug = boot?.activeSlug || lastPreviewSlug;
 	let wasSavingSite = false;
 
 	subscribe(() => {
@@ -99,6 +138,8 @@ export function initSkinSiteEditorSave() {
 			if (boot) {
 				boot.activeSlug = slug;
 			}
+
+			syncBaseStyles(slug);
 		}
 
 		if (wasSavingSite && !isSaving) {
@@ -109,6 +150,14 @@ export function initSkinSiteEditorSave() {
 			}
 
 			lastPreviewSlug = saved;
+
+			if (
+				saved !== savedSlug &&
+				!core.getLastEntitySaveError?.('root', 'site', undefined)
+			) {
+				savedSlug = saved;
+				refreshSkinParts(core);
+			}
 		}
 
 		wasSavingSite = isSaving;
