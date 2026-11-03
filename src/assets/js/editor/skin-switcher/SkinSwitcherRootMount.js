@@ -1,15 +1,12 @@
 /**
- * Mounts skin switcher controls on the Global Styles home screen (same card as core presets).
- * Design skin at the top; ADA color guidance at the bottom.
+ * Mounts skin switcher controls at the top of the Global Styles home screen (same card as core presets).
  */
 import { useEffect, useState, useCallback } from '@wordpress/element';
 import { createPortal } from '@wordpress/element';
 import SkinSwitcherRootCard from './SkinSwitcherRootCard';
-import StylesAccessibilityNotice from './StylesAccessibilityNotice';
 import { reapplyActiveSkin } from './skin-persistence';
 
 const SKIN_MOUNT_ID = 'theme-skin-switcher-root-mount';
-const NOTICE_MOUNT_ID = 'theme-skin-switcher-accessibility-mount';
 
 function findStylesRootStack() {
 	// WP 7.0+: Global Styles UI moved to @wordpress/global-styles-ui (new root class).
@@ -39,8 +36,8 @@ function isMountConnected(mount) {
 	return Boolean(mount?.isConnected);
 }
 
-function ensureMount(stack, id, position) {
-	let mount = document.getElementById(id);
+function ensureMount(stack) {
+	let mount = document.getElementById(SKIN_MOUNT_ID);
 
 	if (mount && !stack.contains(mount)) {
 		mount.remove();
@@ -49,13 +46,8 @@ function ensureMount(stack, id, position) {
 
 	if (!mount) {
 		mount = document.createElement('div');
-		mount.id = id;
-
-		if (position === 'first') {
-			stack.insertBefore(mount, stack.firstChild);
-		} else {
-			stack.appendChild(mount);
-		}
+		mount.id = SKIN_MOUNT_ID;
+		stack.insertBefore(mount, stack.firstChild);
 	}
 
 	return mount;
@@ -63,7 +55,6 @@ function ensureMount(stack, id, position) {
 
 export default function SkinSwitcherRootMount() {
 	const [skinMountNode, setSkinMountNode] = useState(null);
-	const [noticeMountNode, setNoticeMountNode] = useState(null);
 
 	const tryAttach = useCallback(() => {
 		const stack = findStylesRootStack();
@@ -72,23 +63,19 @@ export default function SkinSwitcherRootMount() {
 			return false;
 		}
 
-		setSkinMountNode(ensureMount(stack, SKIN_MOUNT_ID, 'first'));
-		setNoticeMountNode(ensureMount(stack, NOTICE_MOUNT_ID, 'last'));
+		setSkinMountNode(ensureMount(stack));
 		reapplyActiveSkin();
 		return true;
 	}, []);
 
 	const tryDetach = useCallback(() => {
-		for (const id of [SKIN_MOUNT_ID, NOTICE_MOUNT_ID]) {
-			const mount = document.getElementById(id);
+		const mount = document.getElementById(SKIN_MOUNT_ID);
 
-			if (mount && isMountConnected(mount)) {
-				mount.remove();
-			}
+		if (mount && isMountConnected(mount)) {
+			mount.remove();
 		}
 
 		setSkinMountNode(null);
-		setNoticeMountNode(null);
 	}, []);
 
 	useEffect(() => {
@@ -126,17 +113,7 @@ export default function SkinSwitcherRootMount() {
 		};
 	}, [tryAttach, tryDetach]);
 
-	return (
-		<>
-			{skinMountNode && isMountConnected(skinMountNode)
-				? createPortal(<SkinSwitcherRootCard />, skinMountNode)
-				: null}
-			{noticeMountNode && isMountConnected(noticeMountNode)
-				? createPortal(
-						<StylesAccessibilityNotice />,
-						noticeMountNode
-					)
-				: null}
-		</>
-	);
+	return skinMountNode && isMountConnected(skinMountNode)
+		? createPortal(<SkinSwitcherRootCard />, skinMountNode)
+		: null;
 }
