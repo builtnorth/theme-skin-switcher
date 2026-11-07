@@ -18,7 +18,7 @@
 		}
 	},
 	"require": {
-		"php": ">=8.2",
+		"php": ">=8.1",
 		"siratik/package-loader": "^0.1",
 		"siratik/rest-access": "^0.1"
 	},
@@ -39,7 +39,7 @@
 		"test:coverage": "phpunit --coverage-html coverage",
 		"lint": "phpcs",
 		"lint:fix": "phpcbf",
-		"phpcompat": "phpcs -p inc register.php --standard=PHPCompatibility --runtime-set testVersion 8.2-"
+		"phpcompat": "phpcs -p inc register.php --standard=PHPCompatibility --runtime-set testVersion 8.1-"
 	},
 	"config": {
 		"optimize-autoloader": false,
