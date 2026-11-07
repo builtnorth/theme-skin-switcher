@@ -15,7 +15,7 @@ Use it in any theme or child theme that defines a `design-skins/` directory. No 
 
 ## Requirements
 
-- PHP 8.1 or later
+- PHP 8.2 or later
 - WordPress 6.5 or later (block theme, Site Editor)
 
 ## Installation
