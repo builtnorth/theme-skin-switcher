@@ -40,6 +40,20 @@ describe('customPropertiesFrom', () => {
 	it('leaves out values that could close the rule or the style element', () => {
 		expect(customPropertiesFrom({ a: '1px;} body{display:none', b: '</style>', c: '', d: '4px' })).toEqual({ '--wp--custom--d': '4px' });
 	});
+
+	it('leaves out keys, and their whole subtree, that could inject CSS through the name', () => {
+		expect(
+			customPropertiesFrom({
+				'x:1}body{background:red': '1px',
+				'y:1}body{color:red': { inner: '2px', deeper: { leaf: '3px' } },
+				spacing: { 'z}*{display:none': '4px', gap: '5px' },
+				fontSize: { body: '1rem' },
+			})
+		).toEqual({
+			'--wp--custom--spacing--gap': '5px',
+			'--wp--custom--font-size--body': '1rem',
+		});
+	});
 });
 
 describe('site tokens over the skin', () => {

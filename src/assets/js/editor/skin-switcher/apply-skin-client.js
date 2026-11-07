@@ -353,7 +353,14 @@ export function customPropertiesFrom(custom, path = []) {
 	}
 
 	Object.entries(custom).forEach(([key, value]) => {
-		const segments = [...path, toKebabCase(key)];
+		const segment = toKebabCase(key);
+
+		// The name lands in CSS unescaped: a name-safe key only.
+		if (!/^[a-zA-Z0-9_-]+$/.test(segment)) {
+			return;
+		}
+
+		const segments = [...path, segment];
 
 		if (value && typeof value === 'object' && !Array.isArray(value)) {
 			Object.assign(out, customPropertiesFrom(value, segments));
