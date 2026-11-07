@@ -1083,6 +1083,11 @@ class StyleVariationManager
 			$slug = '';
 		}
 
+		// 4. Nothing set: the brand's default skin (brand.json), if any.
+		if ($slug === '') {
+			$slug = BrandSkins::default_slug();
+		}
+
 		$this->active_slug = $slug;
 
 		return $this->active_slug;
@@ -1634,7 +1639,7 @@ class StyleVariationManager
 	 */
 	public static function get_available_styles(): array
 	{
-		return self::discover_skin_slugs();
+		return BrandSkins::offered(self::discover_skin_slugs(), self::get_instance()->get_active_slug());
 	}
 
 	/**
@@ -1654,7 +1659,7 @@ class StyleVariationManager
 	 */
 	public static function get_skin_meta(string $slug): array
 	{
-		$meta = ['description' => '', 'tags' => [], 'header' => '', 'footer' => ''];
+		$meta = ['description' => '', 'collections' => [], 'tags' => [], 'header' => '', 'footer' => ''];
 
 		if (! self::is_registered_skin($slug)) {
 			return $meta;
@@ -1681,6 +1686,12 @@ class StyleVariationManager
 			$meta['tags'] = array_slice(array_values(array_unique(array_filter($tags))), 0, 12);
 		}
 
+		// The style families a brand offers it through (see BrandSkins).
+		if (isset($data['collections']) && is_array($data['collections'])) {
+			$collections         = array_map('sanitize_key', array_filter($data['collections'], 'is_string'));
+			$meta['collections'] = array_slice(array_values(array_unique(array_filter($collections))), 0, 12);
+		}
+
 		// Pattern slugs (for example "waas/header-floating"): core's slug
 		// characters, lowercase. Anything else is dropped.
 		foreach (['header', 'footer'] as $area) {
@@ -1703,7 +1714,7 @@ class StyleVariationManager
 	{
 		$definitions = [];
 
-		foreach (self::discover_skin_slugs() as $slug) {
+		foreach (self::get_available_styles() as $slug) {
 			$path = self::get_variation_json_path($slug);
 
 			if (!is_readable($path)) {
