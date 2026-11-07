@@ -1681,9 +1681,13 @@ class StyleVariationManager
 			$meta['tags'] = array_slice(array_values(array_unique(array_filter($tags))), 0, 12);
 		}
 
+		// Pattern slugs (for example "waas/header-floating"): core's slug
+		// characters, lowercase. Anything else is dropped.
 		foreach (['header', 'footer'] as $area) {
-			if (is_string($data[$area] ?? null)) {
-				$meta[$area] = sanitize_key($data[$area]);
+			$value = is_string($data[$area] ?? null) ? strtolower(trim($data[$area])) : '';
+
+			if ($value !== '' && preg_match('#^[a-z0-9/_-]+$#', $value) === 1) {
+				$meta[$area] = $value;
 			}
 		}
 

@@ -10,14 +10,15 @@ declare(strict_types=1);
 
 namespace KitarisModule\ThemeSkinSwitcher\Provisioning;
 
-use KitarisModule\ThemeSkinSwitcher\SkinPackRegistry;
 use KitarisModule\ThemeSkinSwitcher\Style\StyleVariationManager;
 
 defined('ABSPATH') || defined('WP_CLI') || exit;
 
 /**
- * A skin's meta.json can pair it with a shared header and footer from the
- * pack's patterns folder. Skins are chosen by a site setting, so this
+ * A skin's meta.json can pair it with a header and footer pattern, named by
+ * slug (for example "waas/header-floating"). The pattern comes from WordPress
+ * core's pattern registry, so a brand child theme can ship its own version of
+ * a shared header or footer under the same slug. Skins are chosen by a site setting, so this
  * follows the setting and every route that changes it is covered.
  *
  * The pair is saved as the site's template parts, like a Site Editor save. A
@@ -27,8 +28,6 @@ final class SkinParts
 {
 	/** Hash of the content applied to a part. */
 	private const APPLIED_META = '_theme_skin_switcher_applied';
-
-	private const FOLDER = 'patterns';
 
 	public static function register(): void
 	{
@@ -62,7 +61,7 @@ final class SkinParts
 		$changed = false;
 
 		foreach (['header', 'footer'] as $area) {
-			$content = $meta[$area] !== '' ? self::content($area, $meta[$area]) : '';
+			$content = $meta[$area] !== '' ? self::content($meta[$area]) : '';
 
 			if ($content !== '' && self::save($area, $content)) {
 				$changed = true;
@@ -76,22 +75,16 @@ final class SkinParts
 	}
 
 	/**
-	 * A pattern's markup, with menus named by slug pointed at this site's menus.
+	 * A registered pattern's markup, with menus named by slug pointed at this
+	 * site's menus. '' when no pattern has that slug.
 	 */
-	private static function content(string $area, string $name): string
+	private static function content(string $slug): string
 	{
-		$file = SkinPackRegistry::get_pack_path() . self::FOLDER . "/{$area}/{$name}.php";
+		$pattern = \WP_Block_Patterns_Registry::get_instance()->get_registered($slug);
+		$html    = is_array($pattern) ? trim((string) ($pattern['content'] ?? '')) : '';
 
-		if (! is_readable($file)) {
+		if ($html === '') {
 			return '';
-		}
-
-		ob_start();
-
-		try {
-			include $file;
-		} finally {
-			$html = trim((string) ob_get_clean());
 		}
 
 		return (string) preg_replace_callback(
