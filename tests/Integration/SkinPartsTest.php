@@ -267,7 +267,7 @@ class SkinPartsTest extends WP_UnitTestCase {
 		SkinPackRegistry::get_instance()->register( [ 'id' => 'test', 'path' => $this->pack, 'url' => 'https://example.test/pack/' ] );
 
 		$this->assertSame(
-			[ 'description' => 'Kept', 'tags' => [ 'bold' ], 'header' => 'sst-test/header_one', 'footer' => '' ],
+			[ 'description' => 'Kept', 'collections' => [], 'tags' => [ 'bold' ], 'header' => 'sst-test/header_one', 'footer' => '' ],
 			StyleVariationManager::get_skin_meta( 'cased' )
 		);
 		foreach ( [ 'junk', 'dotted', 'headless' ] as $skin ) {
