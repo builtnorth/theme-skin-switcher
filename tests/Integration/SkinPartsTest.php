@@ -16,7 +16,7 @@ use KitarisModule\ThemeSkinSwitcher\Style\StyleVariationManager;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionProperty;
-use RuntimeException;
+use WP_Block_Patterns_Registry;
 use WP_Block_Template;
 use WP_UnitTestCase;
 
@@ -28,23 +28,25 @@ class SkinPartsTest extends WP_UnitTestCase {
 
 	private int $purges = 0;
 
+	/** @var string[] Pattern slugs this test registered. */
+	private array $patterns = [];
+
 	public function set_up(): void {
 		parent::set_up();
 
 		$this->pack = untrailingslashit( get_temp_dir() ) . '/sst-skin-parts-' . wp_generate_password( 8, false );
 
-		$this->skin( 'fresh', [ 'header' => 'one', 'footer' => 'one' ] );
-		$this->skin( 'second', [ 'header' => 'two', 'footer' => 'two' ] );
+		$this->skin( 'fresh', [ 'header' => 'sst-test/header-one', 'footer' => 'sst-test/footer-one' ] );
+		$this->skin( 'second', [ 'header' => 'sst-test/header-two', 'footer' => 'sst-test/footer-two' ] );
 		$this->skin( 'nopair', [] );
-		$this->skin( 'half', [ 'header' => 'one', 'footer' => 'gone' ] );
-		$this->skin( 'nasty', [ 'header' => '../secret', 'footer' => '../../up' ] );
-		$this->skin( 'traversal', [ 'header' => '..', 'footer' => '/etc/passwd' ] );
+		$this->skin( 'half', [ 'header' => 'sst-test/header-one', 'footer' => 'sst-test/gone' ] );
+		$this->skin( 'blank', [ 'header' => 'sst-test/header-blank', 'footer' => 'sst-test/footer-one' ] );
 
-		$this->pattern( 'header/one', '<!-- wp:paragraph --><p>Header one</p><!-- /wp:paragraph -->' );
-		$this->pattern( 'footer/one', '<!-- wp:paragraph --><p>Footer one</p><!-- /wp:paragraph -->' );
-		$this->pattern( 'header/two', '<!-- wp:paragraph --><p>Header two</p><!-- /wp:paragraph -->' );
-		$this->pattern( 'footer/two', '<!-- wp:paragraph --><p>Footer two</p><!-- /wp:paragraph -->' );
-		$this->pattern( 'secret', 'SECRET OUTSIDE THE AREA' );
+		$this->pattern( 'sst-test/header-one', '<!-- wp:paragraph --><p>Header one</p><!-- /wp:paragraph -->' );
+		$this->pattern( 'sst-test/footer-one', '<!-- wp:paragraph --><p>Footer one</p><!-- /wp:paragraph -->' );
+		$this->pattern( 'sst-test/header-two', '<!-- wp:paragraph --><p>Header two</p><!-- /wp:paragraph -->' );
+		$this->pattern( 'sst-test/footer-two', '<!-- wp:paragraph --><p>Footer two</p><!-- /wp:paragraph -->' );
+		$this->pattern( 'sst-test/header-blank', "  \n " );
 
 		$this->reset_skins();
 		SkinPackRegistry::get_instance()->register(
@@ -68,6 +70,12 @@ class SkinPartsTest extends WP_UnitTestCase {
 
 	public function tear_down(): void {
 		$this->reset_skins();
+
+		foreach ( array_unique( $this->patterns ) as $slug ) {
+			if ( WP_Block_Patterns_Registry::get_instance()->is_registered( $slug ) ) {
+				WP_Block_Patterns_Registry::get_instance()->unregister( $slug );
+			}
+		}
 
 		$items = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $this->pack, FilesystemIterator::SKIP_DOTS ), RecursiveIteratorIterator::CHILD_FIRST );
 		foreach ( $items as $item ) {
@@ -93,7 +101,7 @@ class SkinPartsTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @param array<string, string> $meta
+	 * @param array<string, mixed> $meta
 	 */
 	private function skin( string $slug, array $meta ): void {
 		$dir = $this->pack . '/design-skins/' . $slug;
@@ -104,9 +112,19 @@ class SkinPartsTest extends WP_UnitTestCase {
 		}
 	}
 
-	private function pattern( string $path, string $markup ): void {
-		wp_mkdir_p( dirname( $this->pack . '/patterns/' . $path ) );
-		file_put_contents( $this->pack . '/patterns/' . $path . '.php', $markup ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- a test fixture.
+	/**
+	 * Register (or re-register, as a later registration under the same slug
+	 * replaces the earlier one) a pattern in core's registry.
+	 */
+	private function pattern( string $slug, string $markup ): void {
+		WP_Block_Patterns_Registry::get_instance()->register(
+			$slug,
+			[
+				'title'   => $slug,
+				'content' => $markup,
+			]
+		);
+		$this->patterns[] = $slug;
 	}
 
 	private function part( string $area ): ?WP_Block_Template {
@@ -131,7 +149,7 @@ class SkinPartsTest extends WP_UnitTestCase {
 	 * @return array<string, mixed>|null
 	 */
 	private function navigation_attrs( string $attrs ): ?array {
-		$this->pattern( 'header/one', "<!-- wp:navigation {$attrs} /-->" );
+		$this->pattern( 'sst-test/header-one', "<!-- wp:navigation {$attrs} /-->" );
 
 		set_theme_mod( StyleVariationManager::THEME_MOD_KEY, 'fresh' );
 
@@ -216,38 +234,46 @@ class SkinPartsTest extends WP_UnitTestCase {
 		$this->assertSame( 1, $this->purges );
 	}
 
-	public function test_a_missing_file_skips_that_part_only(): void {
+	public function test_an_unknown_pattern_slug_skips_that_part_only(): void {
 		set_theme_mod( StyleVariationManager::THEME_MOD_KEY, 'half' );
 
 		$this->assertNotNull( $this->part( 'header' ) );
 		$this->assertNull( $this->part( 'footer' ) );
 	}
 
-	/**
-	 * @dataProvider bad_name_skins
-	 */
-	public function test_a_bad_name_cannot_leave_the_folder( string $skin ): void {
-		set_theme_mod( StyleVariationManager::THEME_MOD_KEY, $skin );
+	public function test_an_empty_pattern_saves_nothing_for_that_part(): void {
+		set_theme_mod( StyleVariationManager::THEME_MOD_KEY, 'blank' );
 
 		$this->assertNull( $this->part( 'header' ) );
-		$this->assertNull( $this->part( 'footer' ) );
+		$this->assertStringContainsString( 'Footer one', $this->part( 'footer' )->content );
 	}
 
-	/**
-	 * @return array<string, array{string}>
-	 */
-	public function bad_name_skins(): array {
-		return [
-			'dots and slashes' => [ 'nasty' ],
-			'bare dots'        => [ 'traversal' ],
-		];
+	public function test_the_pattern_registered_under_the_slug_is_used(): void {
+		// A child theme's pattern under the same slug is what the registry returns.
+		$this->pattern( 'sst-test/header-one', '<!-- wp:paragraph --><p>Child header</p><!-- /wp:paragraph -->' );
+
+		set_theme_mod( StyleVariationManager::THEME_MOD_KEY, 'fresh' );
+
+		$this->assertStringContainsString( 'Child header', $this->part( 'header' )->content );
+		$this->assertStringNotContainsString( 'Header one', $this->part( 'header' )->content );
 	}
 
-	public function test_meta_names_are_cleaned(): void {
-		$meta = StyleVariationManager::get_skin_meta( 'nasty' );
+	public function test_meta_keeps_only_pattern_slugs(): void {
+		$this->skin( 'cased', [ 'header' => ' SST-Test/Header_One ', 'footer' => '../../up', 'description' => 'Kept', 'tags' => [ 'Bold' ] ] );
+		$this->skin( 'junk', [ 'header' => 'waas/header one', 'footer' => 'waas/"footer"' ] );
+		$this->skin( 'dotted', [ 'header' => 'waas.header', 'footer' => 42 ] );
+		$this->skin( 'headless', [ 'footer' => [ 'waas/footer' ] ] );
+		$this->reset_skins();
+		SkinPackRegistry::get_instance()->register( [ 'id' => 'test', 'path' => $this->pack, 'url' => 'https://example.test/pack/' ] );
 
-		$this->assertSame( 'secret', $meta['header'] );
-		$this->assertSame( 'up', $meta['footer'] );
+		$this->assertSame(
+			[ 'description' => 'Kept', 'tags' => [ 'bold' ], 'header' => 'sst-test/header_one', 'footer' => '' ],
+			StyleVariationManager::get_skin_meta( 'cased' )
+		);
+		foreach ( [ 'junk', 'dotted', 'headless' ] as $skin ) {
+			$meta = StyleVariationManager::get_skin_meta( $skin );
+			$this->assertSame( [ '', '' ], [ $meta['header'], $meta['footer'] ], $skin );
+		}
 	}
 
 	// --- menus
@@ -311,7 +337,7 @@ class SkinPartsTest extends WP_UnitTestCase {
 
 	public function test_two_named_menus_in_one_pattern_both_resolve(): void {
 		$menu = $this->menu( 'primary' );
-		$this->pattern( 'header/one', '<!-- wp:navigation {"kitarisMenu":"primary"} /--><!-- wp:navigation {"a":1,"kitarisMenu":"nope"} /-->' );
+		$this->pattern( 'sst-test/header-one', '<!-- wp:navigation {"kitarisMenu":"primary"} /--><!-- wp:navigation {"a":1,"kitarisMenu":"nope"} /-->' );
 
 		set_theme_mod( StyleVariationManager::THEME_MOD_KEY, 'fresh' );
 
@@ -319,21 +345,6 @@ class SkinPartsTest extends WP_UnitTestCase {
 
 		$this->assertSame( [ 'ref' => $menu ], $blocks[0]['attrs'] );
 		$this->assertSame( [ 'a' => 1 ], $blocks[1]['attrs'] );
-	}
-
-	public function test_a_pattern_that_throws_leaves_no_output_buffer_open(): void {
-		$this->pattern( 'header/one', '<?php throw new \\RuntimeException( "Broken pattern" );' );
-		$level = ob_get_level();
-
-		try {
-			set_theme_mod( StyleVariationManager::THEME_MOD_KEY, 'fresh' );
-			$this->fail( 'The pattern should have thrown.' );
-		} catch ( RuntimeException $e ) {
-			$this->assertSame( 'Broken pattern', $e->getMessage() );
-		}
-
-		$this->assertSame( $level, ob_get_level() );
-		$this->assertNull( $this->part( 'header' ) );
 	}
 
 	// --- the owner's parts
@@ -402,7 +413,7 @@ class SkinPartsTest extends WP_UnitTestCase {
 	}
 
 	public function test_a_part_kses_changed_is_still_as_applied(): void {
-		$this->pattern( 'header/one', '<!-- wp:paragraph --><p onclick="x()">Header one</p><!-- /wp:paragraph -->' );
+		$this->pattern( 'sst-test/header-one', '<!-- wp:paragraph --><p onclick="x()">Header one</p><!-- /wp:paragraph -->' );
 		add_filter( 'map_meta_cap', static fn ( array $caps, string $cap ): array => 'unfiltered_html' === $cap ? [ 'do_not_allow' ] : $caps, 10, 2 );
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 		kses_init();
