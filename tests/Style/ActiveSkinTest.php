@@ -31,6 +31,9 @@ class ActiveSkinTest extends TestCase
 		self::reset_static_state();
 		$this->set_up_wordpress();
 		WP_Mock::userFunction('get_stylesheet')->andReturn('child');
+		// No theme.json on disk: the skin's own tokens only (the WP_Theme_JSON_Data
+		// stand-in exists, so the base read now runs).
+		WP_Mock::userFunction('get_template_directory')->andReturn('/nonexistent-theme');
 		$this->build_pack();
 		$this->register_pack();
 	}
