@@ -267,13 +267,26 @@ class SkinPartsTest extends WP_UnitTestCase {
 		SkinPackRegistry::get_instance()->register( [ 'id' => 'test', 'path' => $this->pack, 'url' => 'https://example.test/pack/' ] );
 
 		$this->assertSame(
-			[ 'description' => 'Kept', 'collections' => [], 'tags' => [ 'bold' ], 'header' => 'sst-test/header_one', 'footer' => '' ],
+			[ 'description' => 'Kept', 'collections' => [], 'tags' => [ 'bold' ], 'header' => 'sst-test/header_one', 'footer' => '', 'palette' => '', 'fonts' => '' ],
 			StyleVariationManager::get_skin_meta( 'cased' )
 		);
 		foreach ( [ 'junk', 'dotted', 'headless' ] as $skin ) {
 			$meta = StyleVariationManager::get_skin_meta( $skin );
 			$this->assertSame( [ '', '' ], [ $meta['header'], $meta['footer'] ], $skin );
 		}
+	}
+
+	public function test_meta_reads_the_default_palette_and_fonts_as_keys(): void {
+		$this->skin( 'named', [ 'palette' => ' Hi-Vis ', 'fonts' => '../Classic' ] );
+		$this->skin( 'odd', [ 'palette' => [ 'cobalt' ], 'fonts' => 7 ] );
+		$this->reset_skins();
+		SkinPackRegistry::get_instance()->register( [ 'id' => 'test', 'path' => $this->pack, 'url' => 'https://example.test/pack/' ] );
+
+		$named = StyleVariationManager::get_skin_meta( 'named' );
+		$odd   = StyleVariationManager::get_skin_meta( 'odd' );
+
+		$this->assertSame( [ 'hi-vis', 'classic' ], [ $named['palette'], $named['fonts'] ] );
+		$this->assertSame( [ '', '' ], [ $odd['palette'], $odd['fonts'] ] );
 	}
 
 	// --- menus

@@ -1653,13 +1653,15 @@ class StyleVariationManager
 	/**
 	 * Optional description and tags for a skin (design-skins/{slug}/meta.json),
 	 * used where a skin is chosen by description (e.g. an agent picking one),
-	 * and the shared header and footer it pairs with (SkinParts).
+	 * the shared header and footer it pairs with (SkinParts), and its default
+	 * palette and font pairing (the theme's styles/color and styles/typography
+	 * slugs; several skins may share one).
 	 *
-	 * @return array{description: string, tags: string[], header: string, footer: string}
+	 * @return array{description: string, collections: string[], tags: string[], header: string, footer: string, palette: string, fonts: string}
 	 */
 	public static function get_skin_meta(string $slug): array
 	{
-		$meta = ['description' => '', 'collections' => [], 'tags' => [], 'header' => '', 'footer' => ''];
+		$meta = ['description' => '', 'collections' => [], 'tags' => [], 'header' => '', 'footer' => '', 'palette' => '', 'fonts' => ''];
 
 		if (! self::is_registered_skin($slug)) {
 			return $meta;
@@ -1699,6 +1701,13 @@ class StyleVariationManager
 
 			if ($value !== '' && preg_match('#^[a-z0-9/_-]+$#', $value) === 1) {
 				$meta[$area] = $value;
+			}
+		}
+
+		// Style variation file slugs. Whether the file exists is the caller's check.
+		foreach (['palette', 'fonts'] as $key) {
+			if (is_string($data[$key] ?? null)) {
+				$meta[$key] = sanitize_key($data[$key]);
 			}
 		}
 
